@@ -41,6 +41,8 @@
       --shadow:    0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
       --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 12px 32px rgba(0,0,0,.06);
       --trans:     0.18s cubic-bezier(.4,0,.2,1);
+      --scrollbar-size: 18px;
+      --scrollbar-radius: 10px;
     }
 
     html { scroll-behavior: smooth; }
@@ -52,17 +54,19 @@
       min-height: 100vh;
       line-height: 1.6;
       padding: 0 0 3rem;
+      overflow-x: hidden;
     }
 
     /* ── TOP BAR ── */
     .topbar {
       background: var(--ink);
       color: #fff;
-      padding: 0 2rem;
+      padding: .7rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 56px;
+      gap: .9rem 1rem;
+      min-height: 56px;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -75,6 +79,8 @@
       font-weight: 700;
       font-size: .95rem;
       letter-spacing: -.2px;
+      flex-wrap: wrap;
+      min-width: 0;
     }
     .topbar-brand .dot {
       width: 28px; height: 28px;
@@ -89,6 +95,8 @@
       display: flex;
       align-items: center;
       gap: .75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
     #statusBadge {
       font-size: .75rem;
@@ -101,6 +109,8 @@
       gap: .35rem;
       border: 1px solid rgba(255,255,255,.1);
       font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+      min-width: 0;
     }
     #statusBadge.loaded { background: #14532d; color: #86efac; border-color: #166534; }
     #statusBadge.error  { background: #450a0a; color: #fca5a5; border-color: #7f1d1d; }
@@ -423,14 +433,32 @@
       .hero > div:last-child { width: 100%; display: grid !important; grid-template-columns: repeat(3,1fr); gap: .5rem; }
       .hero-stat { min-width: unset; padding: .75rem 1rem; }
       .hero-stat .val { font-size: 1.5rem; }
-      .topbar-right .btn-pdf { display: none; }
-      .topbar-brand { font-size: .82rem; gap: .5rem; }
+      .topbar-brand { width: 100%; font-size: .82rem; gap: .5rem; }
+      .topbar-right {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .5rem;
+      }
+      #statusBadge {
+        grid-column: 1 / -1;
+        justify-content: center;
+        text-align: center;
+        white-space: normal;
+      }
+      .topbar-right .btn-pdf { display: inline-flex; }
+      .btn {
+        width: 100%;
+        justify-content: center;
+        padding: .6rem .75rem;
+        font-size: .78rem;
+      }
       .kpi-grid { grid-template-columns: 1fr 1fr; gap: .75rem; }
       .kpi-value { font-size: 1.5rem; }
       .chart-container { height: 220px; }
       .filters-bar { padding: 1rem; gap: .75rem; }
       .main { padding: 1rem .75rem; gap: 1.25rem; }
-      .topbar { height: 52px; padding: 0 .85rem; }
+      .topbar { padding: .75rem .85rem; }
     }
     @media (max-width: 400px) {
       .hero > div:last-child { grid-template-columns: 1fr 1fr; }
@@ -438,12 +466,17 @@
       .kpi-grid { grid-template-columns: 1fr; }
       .hero-text h1 { font-size: 1.25rem; }
       .topbar-brand .dot { width: 24px; height: 24px; font-size: .8rem; }
+      .topbar-right { grid-template-columns: 1fr; }
     }
 
     /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar { width: 12px; height: 12px; }
-    ::-webkit-scrollbar-track { background: var(--ink-10); border-radius: 6px; }
-    ::-webkit-scrollbar-thumb { background: var(--ink-40); border-radius: 6px; border: 3px solid var(--ink-10); }
+    * {
+      scrollbar-width: auto;
+      scrollbar-color: var(--ink-40) var(--ink-10);
+    }
+    ::-webkit-scrollbar { width: var(--scrollbar-size); height: var(--scrollbar-size); }
+    ::-webkit-scrollbar-track { background: var(--ink-10); border-radius: var(--scrollbar-radius); }
+    ::-webkit-scrollbar-thumb { background: var(--ink-40); border-radius: var(--scrollbar-radius); border: 4px solid var(--ink-10); }
     ::-webkit-scrollbar-thumb:hover { background: var(--ink-60); }
 
     /* ── DRAWER — Entrevistados & Questões ── */
@@ -482,12 +515,12 @@
     }
     .drawer-body.open { max-height: 540px; overflow-y: auto; }
 
-    .drawer-inner { display: grid; grid-template-columns: 1fr 1fr; }
-    @media (max-width: 700px) { .drawer-inner { grid-template-columns: 1fr; } }
+    .drawer-inner { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 980px) { .drawer-inner { grid-template-columns: 1fr; } }
 
     .drawer-col { padding: 1.2rem 1.4rem; }
     .drawer-col + .drawer-col { border-left: 1px solid var(--ink-20); }
-    @media (max-width: 700px) {
+    @media (max-width: 980px) {
       .drawer-col + .drawer-col { border-left: none; border-top: 1px solid var(--ink-20); }
     }
     .drawer-col-title {
@@ -503,10 +536,16 @@
     }
     .drawer-list {
       list-style: none; display: flex; flex-direction: column;
-      gap: .3rem; max-height: 200px; overflow-y: auto; padding-right: 4px;
+      gap: .3rem; max-height: 200px; overflow-y: auto; padding-right: 2px;
     }
-    .drawer-list::-webkit-scrollbar { width: 5px; }
-    .drawer-list::-webkit-scrollbar-thumb { background: var(--ink-20); border-radius: 3px; }
+    .drawer-body::-webkit-scrollbar,
+    .drawer-list::-webkit-scrollbar { width: 16px; height: 16px; }
+    .drawer-body::-webkit-scrollbar-track,
+    .drawer-list::-webkit-scrollbar-track { background: var(--ink-10); border-radius: 10px; }
+    .drawer-body::-webkit-scrollbar-thumb,
+    .drawer-list::-webkit-scrollbar-thumb { background: var(--ink-20); border-radius: 10px; border: 3px solid var(--ink-10); }
+    .drawer-body::-webkit-scrollbar-thumb:hover,
+    .drawer-list::-webkit-scrollbar-thumb:hover { background: var(--ink-40); }
     .drawer-item {
       display: flex; align-items: flex-start; gap: .45rem;
       font-size: .77rem; color: var(--ink-60);
@@ -587,13 +626,13 @@
       <button id="btnClearFilters" class="btn-clear">✕ Limpar Filtros</button>
     </div>
 
-    <!-- Drawer: Entrevistados & Questões -->
+    <!-- Drawer: Entrevistados, Candidatos & Questões -->
     <div class="drawer-wrap" id="drawerWrap">
       <button class="drawer-toggle" id="drawerToggle" aria-expanded="false">
-        <span>📋 &nbsp;Entrevistados e Questões da Pesquisa</span>
+        <span>📋 &nbsp;Entrevistados, Candidatos e Questões da Pesquisa</span>
         <span class="arrow">▼</span>
       </button>
-      <div class="drawer-body" id="drawerBody" role="region" aria-label="Entrevistados e questões">
+      <div class="drawer-body" id="drawerBody" role="region" aria-label="Entrevistados, candidatos e questões">
         <div class="drawer-inner">
           <!-- Coluna: Entrevistados -->
           <div class="drawer-col">
@@ -602,6 +641,15 @@
             </div>
             <ul class="drawer-list" id="drawerRespondentsList">
               <li class="drawer-empty">Carregue os dados para ver os entrevistados.</li>
+            </ul>
+          </div>
+          <!-- Coluna: Candidatos -->
+          <div class="drawer-col">
+            <div class="drawer-col-title">
+              🗳️ Candidatos Citados <span class="ct-badge" id="drawerCandidateCount">0</span>
+            </div>
+            <ul class="drawer-list" id="drawerCandidatesList">
+              <li class="drawer-empty">Carregue os dados para ver os candidatos mencionados.</li>
             </ul>
           </div>
           <!-- Coluna: Questões -->
@@ -710,8 +758,10 @@
     const drawerToggle = document.getElementById('drawerToggle');
     const drawerBody   = document.getElementById('drawerBody');
     const drawerRespondentsList = document.getElementById('drawerRespondentsList');
+    const drawerCandidatesList  = document.getElementById('drawerCandidatesList');
     const drawerQuestionsList   = document.getElementById('drawerQuestionsList');
     const drawerCount  = document.getElementById('drawerCount');
+    const drawerCandidateCount = document.getElementById('drawerCandidateCount');
     const drawerQCount = document.getElementById('drawerQCount');
 
     // ── UTILS ──
@@ -754,6 +804,23 @@
     function formatDateBR(date) {
       if (!date) return '';
       return date.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    }
+
+    function normalizeCandidateName(value) {
+      if (!value) return '';
+      let name = String(value).replace(/\s+/g, ' ').trim();
+      if (!name) return '';
+      const lower = name.toLowerCase();
+      if (/não tenho|nao tenho|nenhum|nenhuma|sem candidato/.test(lower)) return '';
+      name = name.replace(/^sim\s*[,:-]?\s*/i, '').trim();
+      name = name.replace(/^pré\s*-?\s*candidato\s*[:\-]?\s*/i, '').trim();
+      name = name.replace(/^candidato\s*[:\-]?\s*/i, '').trim();
+      if (name.includes(':')) {
+        const tail = name.split(':').pop().trim();
+        if (tail) name = tail;
+      }
+      name = name.replace(/^[-–—]\s*/, '').trim();
+      return name;
     }
 
     // ── CSV PROCESSING ──
@@ -1206,8 +1273,8 @@
 
     /* ── CAPA ── */
     .cover {
-      background: #0b1120;
-      color: #fff;
+      background: #fff;
+      color: #0b1120;
       min-height: 297mm; /* aprox. A4 */
       display: flex;
       flex-direction: column;
@@ -1216,23 +1283,26 @@
       page-break-after: always;
     }
     .cover-top {
-      background: #d97706;
+      background: transparent;
       padding: 28px 40px 22px;
       display: flex;
       align-items: center;
       gap: 16px;
+      border-bottom: 1px solid #e2e8f0;
     }
     .cover-logo {
       width: 52px; height: 52px;
-      background: rgba(255,255,255,.2);
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #d97706;
       border-radius: 14px;
       display: grid;
       place-items: center;
       font-size: 1.8rem;
     }
     .cover-top-text { line-height: 1.2; }
-    .cover-top-text .brand { font-size: 1.1rem; font-weight: 800; }
-    .cover-top-text .sub { font-size: .8rem; opacity: .85; margin-top: 3px; }
+    .cover-top-text .brand { font-size: 1.1rem; font-weight: 800; color: #0b1120; }
+    .cover-top-text .sub { font-size: .8rem; color: #64748b; margin-top: 3px; }
 
     .cover-body {
       flex: 1;
@@ -1254,13 +1324,13 @@
       font-weight: 800;
       line-height: 1.05;
       letter-spacing: -1.5px;
-      color: #fff;
+      color: #0b1120;
       margin-bottom: 10px;
     }
-    .cover-title em { font-style: normal; color: #fbbf24; }
+    .cover-title em { font-style: normal; color: #d97706; }
     .cover-desc {
       font-size: .9rem;
-      color: #94a3b8;
+      color: #475569;
       max-width: 420px;
       margin-bottom: 40px;
     }
@@ -1271,15 +1341,15 @@
       max-width: 480px;
     }
     .cover-stat {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.1);
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 16px;
     }
     .cover-stat .val {
       font-size: 2rem;
       font-weight: 800;
-      color: #fbbf24;
+      color: #d97706;
       font-family: 'JetBrains Mono', monospace;
       line-height: 1;
     }
@@ -1287,7 +1357,7 @@
 
     .cover-footer {
       padding: 24px 40px;
-      border-top: 1px solid rgba(255,255,255,.08);
+      border-top: 1px solid #e2e8f0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -1794,6 +1864,28 @@
       drawerRespondentsList.innerHTML = names.length
         ? names.map((n, i) => `<li class="drawer-item"><span class="drawer-item-num">${i+1}</span>${escHtml(n)}</li>`).join('')
         : '<li class="drawer-empty">Nenhum entrevistado encontrado.</li>';
+
+      // Candidates cited
+      const candidateMap = new Map();
+      rawData.forEach(obj => {
+        const raw = obj._raw || [];
+        const primary = normalizeCandidateName(raw[COL.NOME_CANDIDATO_S]);
+        const secondary = normalizeCandidateName(raw[COL.NOME_CANDIDATO_X]);
+        [primary, secondary].filter(Boolean).forEach(name => {
+          const key = name.toLocaleLowerCase('pt-BR');
+          const current = candidateMap.get(key);
+          if (current) {
+            current.count += 1;
+          } else {
+            candidateMap.set(key, { name, count: 1 });
+          }
+        });
+      });
+      const candidates = Array.from(candidateMap.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'pt-BR'));
+      drawerCandidateCount.textContent = candidates.length;
+      drawerCandidatesList.innerHTML = candidates.length
+        ? candidates.map((cand, i) => `<li class="drawer-item"><span class="drawer-item-num">${i+1}</span>${escHtml(cand.name)} <span style="margin-left:auto; font-size:.68rem; color:var(--ink-40);">${cand.count} menção${cand.count > 1 ? 'ões' : ''}</span></li>`).join('')
+        : '<li class="drawer-empty">Nenhum candidato mencionado.</li>';
 
       // Questions (headers, skip technical cols)
       const skipIdx = new Set([COL.TIMESTAMP, COL.PONTUACAO, COL.EMAIL, COL.MOBILIZADOR,
