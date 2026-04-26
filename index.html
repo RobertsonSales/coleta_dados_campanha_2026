@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Painel de Pesquisa • Campanha 2026</title>
+  <!-- Chart.js para gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Fonte moderna -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0f2b46;
+      --primary-light: #1a3f5c;
+      --accent: #f6851b;
+      --accent-hover: #e0740f;
+      --bg: #f4f7fc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #475569;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 4px 12px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 12px 28px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.04);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --transition: 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem;
+      min-height: 100vh;
+    }
+
+    .dashboard {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: var(--surface);
+      padding: 1.25rem 1.75rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent), #e67e22);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      box-shadow: 0 4px 10px rgba(246, 133, 27, 0.3);
+    }
+
+    .header-title h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    .header-title span {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 10px rgba(246, 133, 27, 0.25);
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .btn-pdf {
+      background: #0f2b46;
+      color: white;
+      border: none;
+      box-shadow: 0 4px 10px rgba(15, 43, 70, 0.2);
+    }
+    .btn-pdf:hover {
+      background: #1a3f5c;
+    }
+
+    .status-badge {
+      font-size: 0.8rem;
+      padding: 0.3rem 0.9rem;
+      border-radius: 50px;
+      font-weight: 500;
+      background: #f1f5f9;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .status-badge.loaded {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .status-badge.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #94a3b8;
+    }
+    .loaded .status-dot {
+      background: #22c55e;
+    }
+    .error .status-dot {
+      background: #ef4444;
+    }
+
+    /* Filtros */
+    .filters-panel {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.75rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-width: 160px;
+      flex: 1 1 auto;
+    }
+    .filter-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .filter-group select,
+    .filter-group input {
+      padding: 0.6rem 0.9rem;
+      border-radius: 50px;
+      border: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: #f8fafc;
+      transition: var(--transition);
+    }
+    .filter-group select:focus,
+    .filter-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(246, 133, 27, 0.1);
+    }
+
+    /* Cards de métricas */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.5rem 1.25rem;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      border: 1px solid transparent;
+    }
+    .kpi-card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: #e2e8f0;
+    }
+    .kpi-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      background: #f0f4ff;
+      color: var(--primary-light);
+    }
+    .kpi-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -1px;
+    }
+    .kpi-sub {
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+
+    /* Gráficos */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 1.5rem;
+    }
+    .chart-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .chart-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 280px;
+    }
+    .chart-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* Estado vazio */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 3rem 2rem;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      color: var(--text-secondary);
+      gap: 1rem;
+      min-height: 200px;
+    }
+    .empty-state .icon-big {
+      font-size: 4rem;
+      opacity: 0.6;
+    }
+    .empty-state p {
+      max-width: 400px;
+      font-size: 0.95rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .text-muted {
+      color: #94a3b8;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 0.75rem;
+      }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+      .kpi-value {
+        font-size: 1.6rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .filter-group {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Cabeçalho -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo-icon">📊</div>
+        <div class="header-title">
+          <h1>Campanha 2026</h1>
+          <span>Painel de Percepção Cidadã • Rio de Janeiro</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span id="statusBadge" class="status-badge">
+          <span class="status-dot"></span> Aguardando dados
+        </span>
+        <button id="btnLoadData" class="btn btn-primary">
+          ⚡ Carregar Dados da Planilha
+        </button>
+        <button id="btnExportPDF" class="btn btn-pdf" disabled>
+          📄 Exportar PDF
+        </button>
+      </div>
+    </header>
+
+    <!-- Painel de Filtros -->
+    <div id="filtersPanel" class="filters-panel hidden">
+      <div class="filter-group">
+        <label for="filterRegion">Região</label>
+        <select id="filterRegion">
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterAge">Faixa Etária</label>
+        <select id="filterAge">
+          <option value="">Todas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterStatus">Status Entrevista</label>
+        <select id="filterStatus">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterDateStart">Data Início</label>
+        <input type="date" id="filterDateStart">
+      </div>
+      <div class="filter-group">
+        <label for="filterDateEnd">Data Fim</label>
+        <input type="date" id="filterDateEnd">
+      </div>
+      <button id="btnClearFilters" class="btn">✕ Limpar</button>
+    </div>
+
+    <!-- Área de conteúdo (vazia inicialmente) -->
+    <div id="emptyState" class="empty-state">
+      <div class="icon-big">📋</div>
+      <h3>Nenhum dado carregado</h3>
+      <p>Clique no botão <strong>"Carregar Dados da Planilha"</strong> para sincronizar as respostas do Google Sheets e visualizar os indicadores.</p>
+    </div>
+
+    <!-- Métricas (KPI) -->
+    <div id="kpiSection" class="hidden">
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </div>
+
+    <!-- Gráficos -->
+    <div id="chartsSection" class="hidden">
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>📈 Satisfação Média por Área (1–5)</h3>
+          <div class="chart-container"><canvas id="chartSatisfacao"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>🗺️ Distribuição por Região</h3>
+          <div class="chart-container"><canvas id="chartRegiao"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>⚡ Problemas com Serviços Essenciais</h3>
+          <div class="chart-container"><canvas id="chartServicos"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>📅 Respostas ao Longo do Tempo</h3>
+          <div class="chart-container"><canvas id="chartTimeline"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- CONFIGURAÇÃO GOOGLE SHEETS ----------
+      // ⚠️ SUBSTITUA ABAIXO COM SEUS DADOS REAIS:
+      //    1. GOOGLE_API_KEY: sua chave de API do Google Cloud Console (com acesso à Sheets API)
+      //    2. SPREADSHEET_ID: o ID da sua planilha (extraído da URL: https://docs.google.com/spreadsheets/d/SEU_ID/...)
+      //    3. RANGE: intervalo desejado, ex: 'Respostas do Formulário 1!A1:Y'
+      const GOOGLE_API_KEY = 'AIzaSyD-EXEMPLO-xxxxxxxxxxxxxxxx'; 
+      const SPREADSHEET_ID = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVpBIQDx5NkfhIR-c9lc761IeQFxfxpzIhczLtOIRB11kIf1u_FFDWfT8_KSqOGa-rkaBg47hsWW6y/pub?output=csv';
+      const RANGE = 'Respostas do Formulário 1!A1:Y';
+
+      // ---------- ESTADO GLOBAL ----------
+      let rawData = [];
+      let headers = [];
+      let filteredData = [];
+      let chartInstances = {};
+
+      // Mapeamento de colunas (índices baseados no arquivo)
+      const COL = {
+        TIMESTAMP: 0,
+        PONTUACAO: 1,
+        CONTATO: 2,
+        IDADE: 3,
+        SAT_EDUCACAO: 4,
+        SAT_SEGURANCA: 5,
+        SAT_TRANSPORTE: 6,
+        SAT_SAUDE: 7,
+        SAT_SANEAMENTO: 8,
+        DESEMPREGO: 9,
+        INICIATIVA_MULHER: 10,
+        SERVICOS_PROBLEMA: 11,
+        TELEFONIA: 12,
+        COMPRAS_ONLINE: 13,
+        REGIAO: 14,
+        ACREDITA_GOVERNANTES: 15,
+        TEM_CANDIDATO: 16,
+        EMAIL: 17,
+        NOME_CANDIDATO_S: 18,
+        BAIRRO: 19,
+        MOBILIZADOR: 20,
+        REGIAO_PESQUISA: 21,
+        STATUS_ENTREVISTA: 22,
+        NOME_CANDIDATO_X: 23,
+        COLUNA24: 24
+      };
+
+      // ---------- ELEMENTOS DOM ----------
+      const btnLoad = document.getElementById('btnLoadData');
+      const btnExportPDF = document.getElementById('btnExportPDF');
+      const statusBadge = document.getElementById('statusBadge');
+      const emptyState = document.getElementById('emptyState');
+      const filtersPanel = document.getElementById('filtersPanel');
+      const kpiSection = document.getElementById('kpiSection');
+      const chartsSection = document.getElementById('chartsSection');
+      const kpiGrid = document.getElementById('kpiGrid');
+      const filterRegion = document.getElementById('filterRegion');
+      const filterAge = document.getElementById('filterAge');
+      const filterStatus = document.getElementById('filterStatus');
+      const filterDateStart = document.getElementById('filterDateStart');
+      const filterDateEnd = document.getElementById('filterDateEnd');
+      const btnClearFilters = document.getElementById('btnClearFilters');
+
+      // ---------- UTILITÁRIOS ----------
+      function parseNumeric(val) {
+        if (val === undefined || val === null || val === '') return NaN;
+        const num = parseFloat(String(val).replace(',', '.').trim());
+        return isNaN(num) ? NaN : num;
+      }
+
+      function parseDate(str) {
+        if (!str) return null;
+        const match = str.match(/(\d{4}-\d{2}-\d{2})/);
+        if (match) {
+          return new Date(match[1] + 'T00:00:00');
+        }
+        const d = new Date(str);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      function normalizeText(txt) {
+        return String(txt || '').trim();
+      }
+
+      // ---------- PROCESSAMENTO DE DADOS ----------
+      function processSheetData(rows) {
+        if (!rows || rows.length < 2) return { headers: [], data: [] };
+        const h = rows[0].map(h => normalizeText(h));
+        const data = rows.slice(1).map((row, idx) => {
+          const obj = {};
+          h.forEach((key, i) => {
+            obj[key] = row[i] !== undefined ? String(row[i]).trim() : '';
+          });
+          obj._raw = row;
+          obj._rowIndex = idx;
+          return obj;
+        });
+        return { headers: h, data };
+      }
+
+      function extractFields(obj) {
+        const get = (colIdx) => {
+          const raw = obj._raw;
+          return raw && raw.length > colIdx ? String(raw[colIdx] || '').trim() : '';
+        };
+        return {
+          timestampRaw: get(COL.TIMESTAMP),
+          idade: get(COL.IDADE),
+          regiao: get(COL.REGIAO),
+          statusEntrevista: get(COL.STATUS_ENTREVISTA),
+          satEducacao: parseNumeric(get(COL.SAT_EDUCACAO)),
+          satSeguranca: parseNumeric(get(COL.SAT_SEGURANCA)),
+          satTransporte: parseNumeric(get(COL.SAT_TRANSPORTE)),
+          satSaude: parseNumeric(get(COL.SAT_SAUDE)),
+          satSaneamento: parseNumeric(get(COL.SAT_SANEAMENTO)),
+          desemprego: parseNumeric(get(COL.DESEMPREGO)),
+          telefonia: parseNumeric(get(COL.TELEFONIA)),
+          iniciativaMulher: get(COL.INICIATIVA_MULHER),
+          servicosProblema: get(COL.SERVICOS_PROBLEMA),
+          acreditaGovernantes: get(COL.ACREDITA_GOVERNANTES),
+          temCandidato: get(COL.TEM_CANDIDATO),
+          comprasOnline: get(COL.COMPRAS_ONLINE),
+          date: parseDate(get(COL.TIMESTAMP))
+        };
+      }
+
+      // ---------- FILTRAGEM AUTOMÁTICA ----------
+      function applyFilters() {
+        if (!rawData.length) return;
+        const regionSel = filterRegion.value;
+        const ageSel = filterAge.value;
+        const statusSel = filterStatus.value;
+        const startDate = filterDateStart.value ? new Date(filterDateStart.value + 'T00:00:00') : null;
+        const endDate = filterDateEnd.value ? new Date(filterDateEnd.value + 'T23:59:59') : null;
+
+        filteredData = rawData.filter(obj => {
+          const f = extractFields(obj);
+          if (regionSel && f.regiao !== regionSel) return false;
+          if (ageSel && f.idade !== ageSel) return false;
+          if (statusSel && f.statusEntrevista !== statusSel) return false;
+          if (startDate && f.date && f.date < startDate) return false;
+          if (endDate && f.date && f.date > endDate) return false;
+          return true;
+        });
+        renderAll();
+      }
+
+      function populateFilterOptions() {
+        const allData = rawData.map(obj => extractFields(obj));
+        
+        const regioes = [...new Set(allData.map(f => f.regiao).filter(Boolean))].sort();
+        filterRegion.innerHTML = '<option value="">Todas</option>';
+        regioes.forEach(r => {
+          filterRegion.innerHTML += `<option value="${r}">${r}</option>`;
+        });
+
+        const idades = [...new Set(allData.map(f => f.idade).filter(Boolean))].sort();
+        filterAge.innerHTML = '<option value="">Todas</option>';
+        idades.forEach(i => {
+          filterAge.innerHTML += `<option value="${i}">${i}</option>`;
+        });
+
+        const statuses = [...new Set(allData.map(f => f.statusEntrevista).filter(Boolean))].sort();
+        filterStatus.innerHTML = '<option value="">Todos</option>';
+        statuses.forEach(s => {
+          filterStatus.innerHTML += `<option value="${s}">${s}</option>`;
+        });
+      }
+
+      // ---------- RENDERIZAÇÃO ----------
+      function renderAll() {
+        const dataToRender = filteredData.length ? filteredData : rawData;
+        if (!dataToRender.length) {
+          showEmpty();
+          btnExportPDF.disabled = true;
+          return;
+        }
+        hideEmpty();
+        btnExportPDF.disabled = false;
+        renderKPIs(dataToRender);
+        renderCharts(dataToRender);
+      }
+
+      function renderKPIs(dataArr) {
+        const fields = dataArr.map(obj => extractFields(obj));
+        const total = fields.length;
+        
+        const satCategories = ['satEducacao', 'satSeguranca', 'satTransporte', 'satSaude', 'satSaneamento', 'desemprego', 'telefonia'];
+        let sumAll = 0, countAll = 0;
+        satCategories.forEach(cat => {
+          fields.forEach(f => {
+            if (!isNaN(f[cat])) { sumAll += f[cat]; countAll++; }
+          });
+        });
+        const mediaGeral = countAll ? (sumAll / countAll).toFixed(1) : '—';
+
+        const acreditaSim = fields.filter(f => f.acreditaGovernantes.toLowerCase().includes('sim, acredito')).length;
+        const pctAcredita = total ? ((acreditaSim / total) * 100).toFixed(0) : 0;
+
+        const temCand = fields.filter(f => f.temCandidato.toLowerCase().includes('sim, tenho')).length;
+        const pctTemCand = total ? ((temCand / total) * 100).toFixed(0) : 0;
+
+        const iniMulherSim = fields.filter(f => f.iniciativaMulher.toLowerCase().includes('sim, existem')).length;
+        const pctIniMulher = total ? ((iniMulherSim / total) * 100).toFixed(0) : 0;
+
+        const probCounts = {};
+        fields.forEach(f => {
+          const val = f.servicosProblema;
+          if (val) probCounts[val] = (probCounts[val] || 0) + 1;
+        });
+        const topProblema = Object.entries(probCounts).sort((a,b) => b[1]-a[1])[0];
+        const topProblemaStr = topProblema ? `${topProblema[0]} (${topProblema[1]})` : '—';
+
+        const cards = [
+          { icon: '👥', label: 'Total Respondentes', value: total, sub: 'após filtros' },
+          { icon: '⭐', label: 'Média Satisfação Geral', value: mediaGeral, sub: 'escala 1–5' },
+          { icon: '🏛️', label: 'Acreditam nos Governantes', value: `${pctAcredita}%`, sub: `${acreditaSim} de ${total}` },
+          { icon: '🗳️', label: 'Têm Candidato', value: `${pctTemCand}%`, sub: `${temCand} de ${total}` },
+          { icon: '♀️', label: 'Iniciativas à Mulher', value: `${pctIniMulher}%`, sub: `acham que existem` },
+          { icon: '⚠️', label: 'Principal Problema Serviços', value: topProblemaStr.split(' (')[0] || '—', sub: topProblemaStr.includes('(') ? topProblemaStr : '' }
+        ];
+
+        kpiGrid.innerHTML = cards.map(c => `
+          <div class="kpi-card">
+            <div class="kpi-icon">${c.icon}</div>
+            <div class="kpi-label">${c.label}</div>
+            <div class="kpi-value">${c.value}</div>
+            <div class="kpi-sub">${c.sub}</div>
+          </div>
+        `).join('');
+      }
+
+      function renderCharts(dataArr) {
+        const fields = dataArr.map(obj => extractFields(obj));
+        
+        Object.values(chartInstances).forEach(chart => chart.destroy());
+        chartInstances = {};
+
+        const satCategories = [
+          { key: 'satEducacao', label: 'Educação' },
+          { key: 'satSeguranca', label: 'Segurança' },
+          { key: 'satTransporte', label: 'Transporte' },
+          { key: 'satSaude', label: 'Saúde (SUS)' },
+          { key: 'satSaneamento', label: 'Saneamento' },
+          { key: 'desemprego', label: 'Desemprego' },
+          { key: 'telefonia', label: 'Telefonia/Internet' }
+        ];
+        const satMedias = satCategories.map(cat => {
+          const vals = fields.map(f => f[cat.key]).filter(v => !isNaN(v));
+          return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+        });
+
+        const ctx1 = document.getElementById('chartSatisfacao').getContext('2d');
+        chartInstances.satisfacao = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: satCategories.map(c => c.label),
+            datasets: [{
+              label: 'Média (1–5)',
+              data: satMedias,
+              backgroundColor: satMedias.map(v => v >= 4 ? '#22c55e' : v >= 3 ? '#f6851b' : '#ef4444'),
+              borderRadius: 8,
+              borderSkipped: false,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } } }
+          }
+        });
+
+        const regiaoCounts = {};
+        fields.forEach(f => {
+          const r = f.regiao || 'Não informado';
+          regiaoCounts[r] = (regiaoCounts[r] || 0) + 1;
+        });
+        const regiaoLabels = Object.keys(regiaoCounts);
+        const regiaoValues = Object.values(regiaoCounts);
+        const ctx2 = document.getElementById('chartRegiao').getContext('2d');
+        chartInstances.regiao = new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            labels: regiaoLabels,
+            datasets: [{
+              data: regiaoValues,
+              backgroundColor: ['#0f2b46','#f6851b','#22c55e','#3b82f6','#8b5cf6','#ec4899','#f59e0b','#64748b'],
+              borderWidth: 0,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'right', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } }
+            }
+          }
+        });
+
+        const servCounts = {};
+        fields.forEach(f => {
+          const val = f.servicosProblema || 'Não informado';
+          servCounts[val] = (servCounts[val] || 0) + 1;
+        });
+        const servLabels = Object.keys(servCounts);
+        const servValues = Object.values(servCounts);
+        const ctx3 = document.getElementById('chartServicos').getContext('2d');
+        chartInstances.servicos = new Chart(ctx3, {
+          type: 'bar',
+          data: {
+            labels: servLabels,
+            datasets: [{
+              label: 'Respostas',
+              data: servValues,
+              backgroundColor: '#f6851b',
+              borderRadius: 8,
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+          }
+        });
+
+        const dateCounts = {};
+        fields.forEach(f => {
+          if (f.date) {
+            const dateStr = f.date.toISOString().split('T')[0];
+            dateCounts[dateStr] = (dateCounts[dateStr] || 0) + 1;
+          }
+        });
+        const dateKeys = Object.keys(dateCounts).sort();
+        const dateValues = dateKeys.map(k => dateCounts[k]);
+        const ctx4 = document.getElementById('chartTimeline').getContext('2d');
+        chartInstances.timeline = new Chart(ctx4, {
+          type: 'line',
+          data: {
+            labels: dateKeys,
+            datasets: [{
+              label: 'Respostas',
+              data: dateValues,
+              borderColor: '#0f2b46',
+              backgroundColor: 'rgba(15,43,70,0.08)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 5,
+              pointBackgroundColor: '#f6851b',
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: true } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+          }
+        });
+      }
+
+      function showEmpty() {
+        emptyState.classList.remove('hidden');
+        kpiSection.classList.add('hidden');
+        chartsSection.classList.add('hidden');
+        filtersPanel.classList.add('hidden');
+      }
+
+      function hideEmpty() {
+        emptyState.classList.add('hidden');
+        kpiSection.classList.remove('hidden');
+        chartsSection.classList.remove('hidden');
+        filtersPanel.classList.remove('hidden');
+      }
+
+      function setStatus(type, message) {
+        statusBadge.className = 'status-badge ' + type;
+        statusBadge.innerHTML = `<span class="status-dot"></span> ${message}`;
+      }
+
+      // ---------- CARREGAMENTO DE DADOS (GOOGLE SHEETS API) ----------
+      async function loadFromGoogleSheets() {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${GOOGLE_API_KEY}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        }
+        const json = await response.json();
+        if (!json.values || json.values.length === 0) {
+          throw new Error('Planilha vazia ou sem dados.');
+        }
+        return json.values;
+      }
+
+      async function loadData() {
+        btnLoad.disabled = true;
+        btnLoad.textContent = '⏳ Carregando...';
+        setStatus('', 'Carregando...');
+        
+        try {
+          const rows = await loadFromGoogleSheets();
+          const processed = processSheetData(rows);
+          headers = processed.headers;
+          rawData = processed.data;
+          filteredData = [...rawData];
+          
+          populateFilterOptions();
+          applyFilters(); // já renderiza
+          setStatus('loaded', `${rawData.length} respostas carregadas`);
+          btnLoad.textContent = '🔄 Sincronizar Dados';
+        } catch (err) {
+          console.error('Erro ao carregar dados:', err);
+          setStatus('error', `Erro: ${err.message}`);
+          showEmpty();
+          btnLoad.textContent = '⚡ Tentar Novamente';
+        } finally {
+          btnLoad.disabled = false;
+        }
+      }
+
+      function clearFilters() {
+        filterRegion.value = '';
+        filterAge.value = '';
+        filterStatus.value = '';
+        filterDateStart.value = '';
+        filterDateEnd.value = '';
+        filteredData = [...rawData];
+        renderAll();
+      }
+
+      // ---------- EXPORTAÇÃO PDF A4 HORIZONTAL ----------
+      function exportToPDF() {
+        const dataToExport = filteredData.length ? filteredData : rawData;
+        if (!dataToExport.length) {
+          alert('Nenhum dado para exportar.');
+          return;
+        }
+
+        // Captura imagens dos gráficos atuais
+        const chartImages = {};
+        const chartIds = ['chartSatisfacao', 'chartRegiao', 'chartServicos', 'chartTimeline'];
+        chartIds.forEach(id => {
+          const canvas = document.getElementById(id);
+          if (canvas) {
+            chartImages[id] = canvas.toDataURL('image/png');
+          }
+        });
+
+        // Calcula métricas
+        const fields = dataToExport.map(obj => extractFields(obj));
+        const total = fields.length;
+        const satCategories = ['satEducacao', 'satSeguranca', 'satTransporte', 'satSaude', 'satSaneamento', 'desemprego', 'telefonia'];
+        let sumAll = 0, countAll = 0;
+        satCategories.forEach(cat => {
+          fields.forEach(f => { if (!isNaN(f[cat])) { sumAll += f[cat]; countAll++; } });
+        });
+        const mediaGeral = countAll ? (sumAll / countAll).toFixed(1) : '—';
+        const acreditaSim = fields.filter(f => f.acreditaGovernantes.toLowerCase().includes('sim, acredito')).length;
+        const pctAcredita = total ? ((acreditaSim / total) * 100).toFixed(0) : 0;
+        const temCand = fields.filter(f => f.temCandidato.toLowerCase().includes('sim, tenho')).length;
+        const pctTemCand = total ? ((temCand / total) * 100).toFixed(0) : 0;
+        const iniMulherSim = fields.filter(f => f.iniciativaMulher.toLowerCase().includes('sim, existem')).length;
+        const pctIniMulher = total ? ((iniMulherSim / total) * 100).toFixed(0) : 0;
+
+        // Monta HTML do relatório (totalmente independente do dashboard)
+        const reportHTML = `
+          <!DOCTYPE html>
+          <html lang="pt-BR">
+          <head>
+            <meta charset="UTF-8">
+            <title>Relatório Campanha 2026</title>
+            <style>
+              @page {
+                size: A4 landscape;
+                margin: 18mm 15mm 22mm 15mm;
+                @top-center {
+                  content: "Relatório Campanha 2026 • Rio de Janeiro";
+                  font-family: 'Inter', sans-serif;
+                  font-size: 11px;
+                  color: #475569;
+                  font-weight: 600;
+                  border-bottom: 1px solid #e2e8f0;
+                  padding-bottom: 6px;
+                  width: 100%;
+                }
+                @bottom-center {
+                  content: "Página " counter(page) " de " counter(pages);
+                  font-family: 'Inter', sans-serif;
+                  font-size: 9px;
+                  color: #94a3b8;
+                  border-top: 1px solid #e2e8f0;
+                  padding-top: 6px;
+                  width: 100%;
+                }
+              }
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body {
+                font-family: 'Inter', sans-serif;
+                color: #1e293b;
+                font-size: 12px;
+                line-height: 1.5;
+                padding: 0;
+              }
+              h1 { font-size: 22px; color: #0f2b46; margin-bottom: 4px; }
+              .subtitle { font-size: 11px; color: #475569; margin-bottom: 18px; }
+              .metrics-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 14px;
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+              }
+              .metric-card {
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                padding: 14px 16px;
+                page-break-inside: avoid;
+              }
+              .metric-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: 600; }
+              .metric-value { font-size: 26px; font-weight: 700; color: #0f2b46; margin: 4px 0; }
+              .metric-sub { font-size: 10px; color: #94a3b8; }
+              .chart-section {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 18px;
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+              }
+              .chart-box {
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                padding: 14px;
+                page-break-inside: avoid;
+              }
+              .chart-box h3 { font-size: 13px; color: #0f2b46; margin-bottom: 10px; }
+              .chart-box img { width: 100%; height: auto; max-height: 220px; object-fit: contain; }
+              .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 9px;
+                margin-top: 10px;
+                page-break-inside: auto;
+              }
+              .data-table th {
+                background: #0f2b46;
+                color: white;
+                padding: 8px 6px;
+                text-align: left;
+                font-weight: 600;
+              }
+              .data-table td, .data-table th {
+                border: 1px solid #e2e8f0;
+                padding: 6px;
+                word-break: break-word;
+              }
+              .data-table tr:nth-child(even) { background: #f8fafc; }
+              .data-table tr { page-break-inside: avoid; }
+              .footer-note {
+                font-size: 9px;
+                color: #94a3b8;
+                text-align: center;
+                margin-top: 12px;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 8px;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>📊 Relatório de Pesquisa • Campanha 2026</h1>
+            <p class="subtitle">Percepção Cidadã no Rio de Janeiro • Gerado em ${new Date().toLocaleDateString('pt-BR')}</p>
+            
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-label">👥 Total Respondentes</div>
+                <div class="metric-value">${total}</div>
+                <div class="metric-sub">após filtros aplicados</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">⭐ Média Satisfação Geral</div>
+                <div class="metric-value">${mediaGeral}</div>
+                <div class="metric-sub">escala 1–5</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">🏛️ Acreditam nos Governantes</div>
+                <div class="metric-value">${pctAcredita}%</div>
+                <div class="metric-sub">${acreditaSim} de ${total} respondentes</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">🗳️ Têm Candidato</div>
+                <div class="metric-value">${pctTemCand}%</div>
+                <div class="metric-sub">${temCand} de ${total} respondentes</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">♀️ Iniciativas à Mulher</div>
+                <div class="metric-value">${pctIniMulher}%</div>
+                <div class="metric-sub">acreditam que existem</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">⚠️ Principal Problema Serviços</div>
+                <div class="metric-value" style="font-size:18px;">${(() => {
+                  const pc = {};
+                  fields.forEach(f => { const v = f.servicosProblema; if (v) pc[v] = (pc[v]||0)+1; });
+                  const top = Object.entries(pc).sort((a,b)=>b[1]-a[1])[0];
+                  return top ? top[0] : '—';
+                })()}</div>
+                <div class="metric-sub">serviço mais citado</div>
+              </div>
+            </div>
+
+            <div class="chart-section">
+              <div class="chart-box">
+                <h3>📈 Satisfação Média por Área</h3>
+                <img src="${chartImages['chartSatisfacao'] || ''}" alt="Gráfico de Satisfação por Área">
+              </div>
+              <div class="chart-box">
+                <h3>🗺️ Distribuição por Região</h3>
+                <img src="${chartImages['chartRegiao'] || ''}" alt="Distribuição por Região">
+              </div>
+              <div class="chart-box">
+                <h3>⚡ Problemas com Serviços Essenciais</h3>
+                <img src="${chartImages['chartServicos'] || ''}" alt="Problemas com Serviços">
+              </div>
+              <div class="chart-box">
+                <h3>📅 Respostas ao Longo do Tempo</h3>
+                <img src="${chartImages['chartTimeline'] || ''}" alt="Linha do Tempo">
+              </div>
+            </div>
+
+            <h3 style="color:#0f2b46; margin:18px 0 8px;">📋 Amostra de Respostas (${Math.min(20, fields.length)} de ${fields.length})</h3>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Data</th><th>Idade</th><th>Região</th><th>Educação</th><th>Segurança</th>
+                  <th>Transporte</th><th>Saúde</th><th>Saneam.</th><th>Desempr.</th>
+                  <th>Telefonia</th><th>Serviços (problema)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${fields.slice(0, 20).map(f => `
+                  <tr>
+                    <td>${f.timestampRaw ? f.timestampRaw.substring(0,10) : ''}</td>
+                    <td>${f.idade}</td>
+                    <td>${f.regiao}</td>
+                    <td>${!isNaN(f.satEducacao) ? f.satEducacao : ''}</td>
+                    <td>${!isNaN(f.satSeguranca) ? f.satSeguranca : ''}</td>
+                    <td>${!isNaN(f.satTransporte) ? f.satTransporte : ''}</td>
+                    <td>${!isNaN(f.satSaude) ? f.satSaude : ''}</td>
+                    <td>${!isNaN(f.satSaneamento) ? f.satSaneamento : ''}</td>
+                    <td>${!isNaN(f.desemprego) ? f.desemprego : ''}</td>
+                    <td>${!isNaN(f.telefonia) ? f.telefonia : ''}</td>
+                    <td>${f.servicosProblema}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <div class="footer-note">
+              Relatório gerado automaticamente pelo Painel Campanha 2026 • Filtros aplicados: 
+              Região: ${filterRegion.value || 'Todas'} | Idade: ${filterAge.value || 'Todas'} | 
+              Status: ${filterStatus.value || 'Todos'} | Período: ${filterDateStart.value || '—'} a ${filterDateEnd.value || '—'}
+            </div>
+          </body>
+          </html>
+        `;
+
+        // Abre nova janela e imprime como PDF
+        const printWindow = window.open('', '_blank', 'width=1100,height=800');
+        if (!printWindow) {
+          alert('Permita a abertura de pop-ups para gerar o PDF.');
+          return;
+        }
+        printWindow.document.write(reportHTML);
+        printWindow.document.close();
+        printWindow.focus();
+        // Aguarda imagens carregarem antes de imprimir
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
+          }, 600);
+        };
+      }
+
+      // ---------- EVENT LISTENERS ----------
+      btnLoad.addEventListener('click', loadData);
+      btnExportPDF.addEventListener('click', exportToPDF);
+
+      // Filtros automáticos: qualquer alteração já aplica o filtro
+      filterRegion.addEventListener('change', applyFilters);
+      filterAge.addEventListener('change', applyFilters);
+      filterStatus.addEventListener('change', applyFilters);
+      filterDateStart.addEventListener('change', applyFilters);
+      filterDateEnd.addEventListener('change', applyFilters);
+
+      btnClearFilters.addEventListener('click', () => {
+        filterRegion.value = '';
+        filterAge.value = '';
+        filterStatus.value = '';
+        filterDateStart.value = '';
+        filterDateEnd.value = '';
+        filteredData = [...rawData];
+        renderAll();
+      });
+
+      // Inicialização: estado vazio
+      showEmpty();
+      setStatus('', 'Aguardando dados');
+    })();
+  </script>
+</body>
+</html>
