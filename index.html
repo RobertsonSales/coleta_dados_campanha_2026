@@ -1,11 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
   <title>Painel de Pesquisa • Campanha 2026</title>
+  <!-- Chart.js e Papa Parse -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -27,14 +28,15 @@
     .header-title span { font-size: 0.85rem; color: var(--text-secondary); }
     .header-actions { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
     .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.4rem; border-radius: 50px; font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; transition: var(--transition); background: var(--surface); color: var(--primary); border: 1px solid var(--border); white-space: nowrap; }
-    .btn-primary { background: var(--accent); color: #fff; border: none; border-color: transparent; }
+    .btn-primary { background: var(--accent); color: #fff; border: none; }
     .btn-pdf { background: #0f2b46; color: white; border: none; }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .status-badge { font-size: 0.8rem; padding: 0.3rem 0.9rem; border-radius: 50px; background: #f1f5f9; color: #64748b; display: flex; align-items: center; gap: 0.35rem; }
     .status-badge.loaded { background: #dcfce7; color: #166534; }
     .status-badge.error { background: #fee2e2; color: #991b1b; }
     .status-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .loaded .status-dot { background: #22c55e; } .error .status-dot { background: #ef4444; }
+    .loaded .status-dot { background: #22c55e; }
+    .error .status-dot { background: #ef4444; }
     .filters-panel { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; }
     .filter-group { display: flex; flex-direction: column; gap: 0.35rem; min-width: 150px; flex: 1 1 auto; }
     .filter-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
@@ -65,7 +67,7 @@
       <div class="header-actions">
         <span id="statusBadge" class="status-badge"><span class="status-dot"></span> Aguardando</span>
         <button id="btnLoadData" class="btn btn-primary">⚡ Carregar Dados da Planilha</button>
-        <button id="btnExportPDF" class="btn btn-pdf" disabled>📄 Exportar PDF</button>
+        <button id="btnExportPDF" class="btn btn-pdf" disabled>📄 Visualizar PDF</button>
       </div>
     </header>
     <div id="filtersPanel" class="filters-panel hidden">
@@ -80,7 +82,6 @@
       <div style="font-size:3rem;">📋</div>
       <h3>Nenhum dado carregado</h3>
       <p>Clique em <strong>"Carregar Dados da Planilha"</strong> para sincronizar com o Google Sheets.</p>
-      <button id="btnLoadDemo" class="btn" style="margin-top:1rem;">📥 Usar dados de demonstração</button>
     </div>
     <div id="kpiSection" class="hidden"><div class="kpi-grid" id="kpiGrid"></div></div>
     <div id="chartsSection" class="hidden">
@@ -95,10 +96,11 @@
 
   <script>
     (function() {
-      // ⚠️ CONFIGURAÇÃO OBRIGATÓRIA ⚠️
-      const GOOGLE_API_KEY = 'AIzaSyD-EXEMPLO-xxxxxxxxxxxxxxxx'; // <- SUA CHAVE AQUI
-      const SPREADSHEET_ID = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVpBIQDx5NkfhIR-c9lc761IeQFxfxpzIhczLtOIRB11kIf1u_FFDWfT8_KSqOGa-rkaBg47hsWW6y/pub?output=csv';        // <- ID DA PLANILHA
-      const RANGE = 'Respostas do Formulário 1!A1:Y';              // <- NOME DA ABA + INTERVALO
+      // ⚠️ CONFIGURAÇÃO ⚠️
+      // URL do CSV público da sua planilha Google
+      const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVpBIQDx5NkfhIR-c9lc761IeQFxfxpzIhczLtOIRB11kIf1u_FFDWfT8_KSqOGa-rkaBg47hsWW6y/pub?output=csv';
+      // Proxy CORS público (para evitar bloqueios do navegador)
+      const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
       let rawData = [], headers = [], filteredData = [], chartInstances = {};
 
@@ -112,7 +114,6 @@
 
       // elementos DOM
       const btnLoad = document.getElementById('btnLoadData');
-      const btnLoadDemo = document.getElementById('btnLoadDemo');
       const btnExportPDF = document.getElementById('btnExportPDF');
       const statusBadge = document.getElementById('statusBadge');
       const emptyState = document.getElementById('emptyState');
@@ -134,18 +135,22 @@
       }
       function parseDate(str) {
         if (!str) return null;
-        const m = str.match(/(\d{4}-\d{2}-\d{2})/);
+        const m = str ? str.match(/(\d{4}-\d{2}-\d{2})/) : null;
         if (m) return new Date(m[1]+'T00:00:00');
         const d = new Date(str); return isNaN(d.getTime()) ? null : d;
       }
-      function processSheetData(rows) {
-        if (!rows || rows.length < 2) return { headers: [], data: [] };
-        const h = rows[0].map(s => String(s||'').trim());
-        const data = rows.slice(1).map((row, i) => {
-          const obj = {}; h.forEach((k, idx) => { obj[k] = row[idx] !== undefined ? String(row[idx]).trim() : ''; });
-          obj._raw = row; obj._rowIndex = i; return obj;
+      function processCSVData(csvText) {
+        const result = Papa.parse(csvText, { header: false, skipEmptyLines: true });
+        if (!result.data || result.data.length < 2) return { headers: [], data: [] };
+        const headersRow = result.data[0].map(h => String(h || '').trim());
+        const rows = result.data.slice(1).map((row, idx) => {
+          const obj = {};
+          headersRow.forEach((key, i) => { obj[key] = row[i] !== undefined ? String(row[i]).trim() : ''; });
+          obj._raw = row;
+          obj._rowIndex = idx;
+          return obj;
         });
-        return { headers: h, data };
+        return { headers: headersRow, data: rows };
       }
       function extractFields(obj) {
         const g = (i) => obj._raw && obj._raw.length > i ? String(obj._raw[i]||'').trim() : '';
@@ -229,48 +234,29 @@
       function showEmpty() { emptyState.classList.remove('hidden'); kpiSection.classList.add('hidden'); chartsSection.classList.add('hidden'); filtersPanel.classList.add('hidden'); }
       function hideEmpty() { emptyState.classList.add('hidden'); kpiSection.classList.remove('hidden'); chartsSection.classList.remove('hidden'); filtersPanel.classList.remove('hidden'); }
 
-      async function fetchSheet() {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${GOOGLE_API_KEY}`;
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
-        const json = await resp.json();
-        if (!json.values || !json.values.length) throw new Error('Planilha vazia.');
-        return json.values;
+      async function fetchCSV() {
+        const response = await fetch(CORS_PROXY + encodeURIComponent(CSV_URL));
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        return await response.text();
       }
 
-      function loadDemoData() {
-        // Dados de demonstração (apenas para testes)
-        const demoRows = [
-          ['Carimbo de data/hora','Pontuação','Contato','Idade','Satisfação Educação','Satisfação Segurança','Satisfação Transporte','Satisfação Saúde','Satisfação Saneamento','Desemprego','Iniciativa Mulher','Serviços Problema','Telefonia','Compras Online','Região','Acredita Governantes','Tem Candidato','Email','Nome Candidato S','Bairro','Mobilizador','Região Pesquisa','Status Entrevista','Nome Candidato X','Coluna 24'],
-          ['2026-04-16 20:40:24','0','Não quis informar','Entre 30 e 35 anos','3','2','3','3','3','4','Não, não existe nenhuma iniciativa política regional.','Todos eles, ocasionalmente','3','Algumas vezes','Zona Norte (RJ)','Acredito, mas com reservas.','Não, não tenho.','','','','','','','',''],
-          ['2026-04-16 21:04:55','0','','Entre 25 e 30 anos','2','3','3','3','4','3','Sim, existem.','Coleta de lixo','3','Algumas vezes','Zona Sul (RJ)','Sim, acredito.','Não, não tenho.','campanhadep26@gmail.com','','','','','','',''],
-          ['2026-04-16 22:03:15','0','robertguima@gmail.com','Acima de 40 anos','3','2','3','3','2','4','Não, não existe...','Todos eles, ocasionalmente','3','Algumas vezes tive problemas','Zona Norte (RJ)','Acredito, mas com reservas.','Sim, tenho.','robertguima@gmail.com','João Pires','Pavuna','','','','',''],
-          ['2026-04-17 00:43:45','0','Ronaldo...','Acima de 40 anos','4','4','5','4','5','4','Não, não existe...','Coleta de lixo','4','Nunca comprei...','Zona Norte (RJ)','Sim, acredito.','Não, não tenho.','rpfranklin.procario@gmail.com','Sim, Pré Candidato: João Pires','Sampaio','','','','',''],
-          ['2026-04-17 14:40:44','0','Preferiu não informar','Entre 30 e 35 anos','2','2','3','2','2','3','Não, não existe...','Todos eles, ocasionalmente','3','Algumas vezes tive problemas','Zona Norte (RJ)','Não, não acredito.','Sim, tenho.','','','Olha do Governador','SALES','Baixada Fluminense','Concluída totalmente','João Pires','Pavuna']
-        ];
-        const processed = processSheetData(demoRows);
-        rawData = processed.data; headers = processed.headers; filteredData = [...rawData];
-        populateFilters(); renderAll();
-        setStatus('loaded', `${rawData.length} respostas (demonstração)`);
-        btnLoad.textContent = '🔄 Sincronizar Planilha';
-      }
-
-      async function loadRealData() {
+      async function loadData() {
         btnLoad.disabled = true; btnLoad.textContent = '⏳ Conectando...';
-        setStatus('', 'Conectando à API...');
+        setStatus('', 'Carregando CSV...');
         try {
-          const rows = await fetchSheet();
-          const processed = processSheetData(rows);
-          rawData = processed.data; headers = processed.headers; filteredData = [...rawData];
+          const csvText = await fetchCSV();
+          const processed = processCSVData(csvText);
+          rawData = processed.data; headers = processed.headers;
+          if (!rawData.length) throw new Error('Planilha vazia ou sem dados.');
+          filteredData = [...rawData];
           populateFilters(); renderAll();
-          setStatus('loaded', `${rawData.length} respostas (tempo real)`);
+          setStatus('loaded', `${rawData.length} respostas carregadas`);
           btnLoad.textContent = '🔄 Sincronizar Dados';
         } catch (e) {
           console.error(e);
           setStatus('error', `Erro: ${e.message}`);
           showEmpty();
           btnLoad.textContent = '⚡ Tentar Novamente';
-          throw e;
         } finally {
           btnLoad.disabled = false;
         }
@@ -281,23 +267,22 @@
         statusBadge.innerHTML = `<span class="status-dot"></span> ${msg}`;
       }
 
-      // Exportação PDF (inalterada, mas resumida)
+      // Exportação PDF (visualizar em nova aba)
       function exportPDF() {
         const data = filteredData.length ? filteredData : rawData;
         if (!data.length) return alert('Sem dados.');
         const f = data.map(extractFields), t = f.length;
-        const imgs = {}; ['chartSatisfacao','chartRegiao','chartServicos','chartTimeline'].forEach(id=>{
+        const imgs = {};
+        ['chartSatisfacao','chartRegiao','chartServicos','chartTimeline'].forEach(id=>{
           const c=document.getElementById(id); if(c) imgs[id]=c.toDataURL('image/png');
         });
-        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Relatório Campanha 2026</title><style>@page{size:A4 landscape;margin:20mm 15mm 25mm 15mm;}body{font-family:Inter,sans-serif;font-size:12px;color:#1e293b;}h1{color:#0f2b46;}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}.card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;}.charts{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}.chart-box{background:#f8fafc;border:1px solid #e2e8f0;padding:10px;}img{max-width:100%;height:auto;}.footer{font-size:9px;text-align:center;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:8px;}</style></head><body><h1>📊 Relatório de Pesquisa • Campanha 2026</h1><p>${new Date().toLocaleDateString('pt-BR')}</p><div class="metrics">${['Total:'+t,'Média Geral:'+(()=>{let s=0,c=0;['satEducacao','satSeguranca','satTransporte','satSaude','satSaneamento','desemprego','telefonia'].forEach(k=>f.forEach(x=>{if(!isNaN(x[k])){s+=x[k];c++;}}));return (s/c).toFixed(1);})()].map(m=>`<div class="card">${m}</div>`).join('')}</div><div class="charts">${Object.entries(imgs).map(([k,v])=>`<div class="chart-box"><img src="${v}"></div>`).join('')}</div><div class="footer">Filtros: Região ${filterRegion.value||'Todas'} | Idade ${filterAge.value||'Todas'} | Status ${filterStatus.value||'Todos'}</div></body></html>`;
-        const w = window.open('','_blank','width=1000,height=700');
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Relatório Campanha 2026</title><style>@page{size:A4 landscape;margin:20mm 15mm 25mm 15mm;}body{font-family:Inter,sans-serif;font-size:12px;color:#1e293b;}h1{color:#0f2b46;} .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;} .card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;} .charts{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px;} .chart-box{background:#f8fafc;border:1px solid #e2e8f0;padding:10px;} img{max-width:100%;height:auto;} .footer{font-size:9px;text-align:center;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:8px;} .btn-print{display:block;margin:20px auto;padding:12px 30px;background:#f6851b;color:white;border:none;border-radius:50px;font-size:14px;cursor:pointer;}</style></head><body><h1>📊 Relatório de Pesquisa • Campanha 2026</h1><p style="color:#475569;">${new Date().toLocaleDateString('pt-BR')}</p><div class="metrics">${[`Total: ${t}`, `Média Geral: ${(()=>{let s=0,c=0;['satEducacao','satSeguranca','satTransporte','satSaude','satSaneamento','desemprego','telefonia'].forEach(k=>f.forEach(x=>{if(!isNaN(x[k])){s+=x[k];c++;}}));return (s/c).toFixed(1);})()}`].map(m=>`<div class="card">${m}</div>`).join('')}</div><div class="charts">${Object.entries(imgs).map(([k,v])=>`<div class="chart-box"><img src="${v}"></div>`).join('')}</div><div class="footer">Filtros: Região ${filterRegion.value||'Todas'} | Idade ${filterAge.value||'Todas'} | Status ${filterStatus.value||'Todos'}</div><button class="btn-print" onclick="window.print()">📄 Baixar / Imprimir PDF</button></body></html>`;
+        const w = window.open('', '_blank', 'width=1100,height=800');
         w.document.write(html); w.document.close();
-        w.onload = () => setTimeout(() => w.print(), 500);
       }
 
       // Eventos
-      btnLoad.addEventListener('click', loadRealData);
-      btnLoadDemo.addEventListener('click', () => { loadDemoData(); btnLoadDemo.style.display='none'; });
+      btnLoad.addEventListener('click', loadData);
       btnExportPDF.addEventListener('click', exportPDF);
       [filterRegion,filterAge,filterStatus,filterDateStart,filterDateEnd].forEach(el => el.addEventListener('change', applyFilters));
       btnClearFilters.addEventListener('click', ()=>{
