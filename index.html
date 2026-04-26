@@ -348,55 +348,50 @@
     .kv-green .kpi-icon-wrap { background: var(--green-bg); color: var(--green); }
     .kv-red .kpi-stripe   { background: var(--red); }
     .kv-red .kpi-icon-wrap { background: var(--red-bg); color: var(--red); }
-    .kv-purple .kpi-stripe{ background: var(--purple); }
+    .kv-purple .kpi-stripe { background: var(--purple); }
     .kv-purple .kpi-icon-wrap { background: var(--purple-bg); color: var(--purple); }
-    .kv-teal .kpi-stripe  { background: var(--teal); }
+    .kv-teal .kpi-stripe { background: var(--teal); }
     .kv-teal .kpi-icon-wrap { background: var(--teal-bg); color: var(--teal); }
 
     .badge-good { background: var(--green-bg); color: var(--green); }
-    .badge-warn { background: #fef3c7; color: #92400e; }
+    .badge-warn { background: var(--gold-bg); color: var(--gold); }
     .badge-bad  { background: var(--red-bg); color: var(--red); }
 
-    /* ── SECTION HEADING ── */
+    /* ── CHARTS SECTION ── */
+    .charts-section.hidden { display: none; }
     .section-heading {
+      font-size: .75rem;
+      font-weight: 800;
+      color: var(--ink-40);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 1.25rem;
       display: flex;
       align-items: center;
       gap: .75rem;
-      font-size: .78rem;
-      font-weight: 700;
-      color: var(--ink-40);
-      text-transform: uppercase;
-      letter-spacing: .8px;
-      margin-bottom: -.5rem;
     }
-    .section-heading::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--ink-20);
-    }
+    .section-heading::after { content: ''; flex: 1; height: 1.5px; background: var(--ink-10); }
 
-    /* ── CHARTS ── */
-    .charts-section.hidden { display: none; }
     .charts-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 1.25rem;
+      gap: 1.5rem;
     }
     .chart-card {
       background: var(--surface);
       border-radius: var(--radius);
+      padding: 1.5rem;
       box-shadow: var(--shadow);
       border: 1px solid var(--ink-20);
-      padding: 1.4rem;
       display: flex;
       flex-direction: column;
-      gap: .75rem;
+      gap: 1.25rem;
     }
     .chart-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 1rem;
     }
     .chart-card-header h3 {
       font-size: .9rem;
@@ -427,38 +422,47 @@
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 600px) {
-      .filter-group { min-width: 100%; }
-      .hero-text h1 { font-size: 1.4rem; }
-      .hero { flex-direction: column; align-items: flex-start; gap: 1rem; }
-      .hero > div:last-child { width: 100%; display: grid !important; grid-template-columns: repeat(3,1fr); gap: .5rem; }
-      .hero-stat { min-width: unset; padding: .75rem 1rem; }
-      .hero-stat .val { font-size: 1.5rem; }
-      .topbar-brand { width: 100%; font-size: .82rem; gap: .5rem; }
-      .topbar-right {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: .5rem;
+      /* Ajustes Mobile solicitados */
+      .topbar { 
+        position: relative; /* Mudado de sticky para o topo ser fixo mas não necessariamente flutuante se preferir, mas sticky 0 resolve */
+        flex-direction: column; 
+        height: auto; 
+        padding: 1rem; 
+        gap: 0.8rem;
       }
-      #statusBadge {
-        grid-column: 1 / -1;
-        justify-content: center;
+      .topbar-brand { 
+        order: -2; 
+        width: 100%; 
+        justify-content: center; 
+        font-size: 1rem; 
         text-align: center;
-        white-space: normal;
       }
-      .topbar-right .btn-pdf { display: inline-flex; }
-      .btn {
-        width: 100%;
-        justify-content: center;
-        padding: .6rem .75rem;
-        font-size: .78rem;
+      .topbar-right { 
+        order: -1; 
+        width: 100%; 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 0.5rem; 
       }
+      #statusBadge { grid-column: 1 / -1; justify-content: center; }
+
+      .hero { padding-top: 1rem; flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .hero-text { width: 100%; text-align: center; }
+      .hero-text h1 { font-size: 1.4rem; }
+      .hero > div:last-child { width: 100%; display: grid !important; grid-template-columns: repeat(3,1fr); gap: .5rem; }
+      .hero-stat { min-width: unset; padding: .75rem 0.5rem; }
+      .hero-stat .val { font-size: 1.3rem; }
+      .hero-stat .lbl { font-size: 0.6rem; }
+
+      .filter-group { min-width: 100%; }
       .kpi-grid { grid-template-columns: 1fr 1fr; gap: .75rem; }
       .kpi-value { font-size: 1.5rem; }
       .chart-container { height: 220px; }
       .filters-bar { padding: 1rem; gap: .75rem; }
-      .main { padding: 1rem .75rem; gap: 1.25rem; }
-      .topbar { padding: .75rem .85rem; }
+      
+      /* Evitar sobreposição dos títulos pelos cards iniciais */
+      .section-heading { margin-top: 1rem; }
+      .main { padding: 1rem .75rem; gap: 2rem; }
     }
     @media (max-width: 400px) {
       .hero > div:last-child { grid-template-columns: 1fr 1fr; }
@@ -480,7 +484,7 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--ink-60); }
 
     /* ── DRAWER — Entrevistados & Questões ── */
-    .drawer-wrap { display: flex; flex-direction: column; }
+    .drawer-wrap { display: flex; flex-direction: column; margin-top: 1rem; }
     .drawer-toggle {
       display: inline-flex;
       align-items: center;
@@ -513,7 +517,7 @@
       max-height: 0;
       transition: max-height .4s cubic-bezier(.4,0,.2,1);
     }
-    .drawer-body.open { max-height: 540px; overflow-y: auto; }
+    .drawer-body.open { max-height: 1000px; overflow-y: auto; }
 
     .drawer-inner { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
     @media (max-width: 980px) { .drawer-inner { grid-template-columns: 1fr; } }
@@ -536,7 +540,7 @@
     }
     .drawer-list {
       list-style: none; display: flex; flex-direction: column;
-      gap: .3rem; max-height: 200px; overflow-y: auto; padding-right: 2px;
+      gap: .3rem; max-height: 400px; overflow-y: auto; padding-right: 2px;
     }
     .drawer-body::-webkit-scrollbar,
     .drawer-list::-webkit-scrollbar { width: 16px; height: 16px; }
@@ -546,8 +550,9 @@
     .drawer-list::-webkit-scrollbar-thumb { background: var(--ink-20); border-radius: 10px; border: 3px solid var(--ink-10); }
     .drawer-body::-webkit-scrollbar-thumb:hover,
     .drawer-list::-webkit-scrollbar-thumb:hover { background: var(--ink-40); }
+    
     .drawer-item {
-      display: flex; align-items: flex-start; gap: .45rem;
+      display: flex; align-items: center; gap: .45rem;
       font-size: .77rem; color: var(--ink-60);
       padding: .38rem .6rem; border-radius: var(--radius-sm);
       background: var(--canvas); border: 1px solid transparent;
@@ -556,9 +561,34 @@
     .drawer-item:hover { border-color: var(--ink-20); color: var(--ink); }
     .drawer-item-num {
       font-size: .63rem; font-weight: 700; color: var(--ink-40);
-      font-family: 'JetBrains Mono', monospace; min-width: 20px; margin-top: 1px;
+      font-family: 'JetBrains Mono', monospace; min-width: 25px;
     }
+    .drawer-item-val { margin-left: auto; display: flex; gap: 0.5rem; }
+    .val-pos { color: var(--green); font-weight: 700; }
+    .val-neg { color: var(--red); font-weight: 700; }
+    
     .drawer-empty { font-size: .8rem; color: var(--ink-40); font-style: italic; padding: .5rem .6rem; }
+    
+    /* Destaque para o candidato mais citado */
+    .top-candidate {
+      background: var(--gold-bg);
+      border: 1px solid var(--gold-lt);
+      font-weight: 700;
+    }
+    .top-candidate::after {
+      content: '🏆';
+      margin-left: 5px;
+    }
+
+    /* Estilo para métricas nas questões */
+    .q-metrics {
+      margin-left: auto;
+      font-size: 0.65rem;
+      background: var(--ink-10);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--ink-60);
+    }
   </style>
 </head>
 <body>
@@ -638,6 +668,7 @@
           <div class="drawer-col">
             <div class="drawer-col-title">
               👤 Entrevistados <span class="ct-badge" id="drawerCount">0</span>
+              <span style="margin-left:auto; font-size:0.6rem; opacity:0.7;">(+) Pos / (-) Neg</span>
             </div>
             <ul class="drawer-list" id="drawerRespondentsList">
               <li class="drawer-empty">Carregue os dados para ver os entrevistados.</li>
@@ -722,7 +753,6 @@
     const CACHE_TS    = 'campanha2026_ts';
     const CACHE_TTL   = 5 * 60 * 1000; // 5 min
 
-    // Proxies ordered by speed
     const PROXIES = [
       u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
       u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
@@ -771,32 +801,21 @@
       return isNaN(n) ? NaN : n;
     }
 
-    /**
-     * parseDate — suporta:
-     *   • "DD/MM/YYYY HH:MM:SS"  (Google Sheets pt-BR)
-     *   • "YYYY-MM-DD ..."
-     *   • ISO strings
-     */
     function parseDate(str) {
       if (!str) return null;
       str = str.trim();
-
-      // DD/MM/YYYY HH:MM:SS  or  DD/MM/YYYY
       const ptBR = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
       if (ptBR) {
         const [, d, m, y] = ptBR;
         const dt = new Date(+y, +m-1, +d);
         return isNaN(dt) ? null : dt;
       }
-
-      // YYYY-MM-DD
       const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
       if (iso) {
         const [, y, m, d] = iso;
         const dt = new Date(+y, +m-1, +d);
         return isNaN(dt) ? null : dt;
       }
-
       const dt = new Date(str);
       return isNaN(dt.getTime()) ? null : dt;
     }
@@ -859,7 +878,76 @@
       };
     }
 
-    // ── FILTERS ──
+    async function loadData() {
+      btnLoad.disabled = true;
+      btnLoad.textContent = '⌛ Sincronizando...';
+      statusBadge.className = '';
+      statusBadge.innerHTML = '<span class="status-dot"></span>Conectando...';
+
+      const cached = localStorage.getItem(CACHE_KEY);
+      const ts = localStorage.getItem(CACHE_TS);
+      if (cached && ts && (Date.now() - ts < CACHE_TTL)) {
+        console.log('[Cache] Usando dados locais');
+        const res = processCSVData(cached);
+        headers = res.headers;
+        rawData = res.data;
+        filteredData = [...rawData];
+        finishLoad();
+        return;
+      }
+
+      for (const proxyFn of PROXIES) {
+        try {
+          const url = proxyFn(CSV_URL);
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          const text = await resp.text();
+          if (text.length < 100) throw new Error('CSV muito curto');
+          
+          localStorage.setItem(CACHE_KEY, text);
+          localStorage.setItem(CACHE_TS, Date.now());
+          
+          const res = processCSVData(text);
+          headers = res.headers;
+          rawData = res.data;
+          filteredData = [...rawData];
+          finishLoad();
+          return;
+        } catch (e) {
+          console.warn('[Proxy Fail]', e.message);
+        }
+      }
+
+      statusBadge.className = 'error';
+      statusBadge.innerHTML = '<span class="status-dot"></span>Erro na conexão';
+      btnLoad.disabled = false;
+      btnLoad.textContent = '⚡ Tentar Novamente';
+      alert('Não foi possível conectar ao Google Sheets. Verifique sua internet ou se a planilha está publicada como CSV.');
+    }
+
+    function finishLoad() {
+      statusBadge.className = 'loaded';
+      statusBadge.innerHTML = '<span class="status-dot"></span>Conectado';
+      btnLoad.disabled = false;
+      btnLoad.textContent = '⚡ Sincronizado';
+      populateFilters();
+      renderAll();
+    }
+
+    function showEmpty() {
+      emptyState.classList.remove('hidden');
+      filtersPanel.classList.add('hidden');
+      kpiSection.classList.add('hidden');
+      chartsSection.classList.add('hidden');
+    }
+
+    function hideEmpty() {
+      emptyState.classList.add('hidden');
+      filtersPanel.classList.remove('hidden');
+      kpiSection.classList.remove('hidden');
+      chartsSection.classList.remove('hidden');
+    }
+
     function applyFilters() {
       if (!rawData.length) return;
       filteredData = rawData.filter(obj => {
@@ -886,7 +974,6 @@
         [...new Set(all.map(f=>f.statusEntrevista).filter(Boolean))].sort().map(v=>`<option>${v}</option>`).join('');
     }
 
-    // ── RENDER ──
     function renderAll() {
       const data = filteredData.length ? filteredData : rawData;
       if (!data.length) { showEmpty(); btnPDF.disabled = true; return; }
@@ -895,6 +982,7 @@
       renderKPIs(data);
       renderCharts(data);
       updateHero(data);
+      updateDrawer();
     }
 
     function updateHero(arr) {
@@ -981,7 +1069,6 @@
       chartInstances = {};
       const f = arr.map(extractFields);
 
-      // 1. Satisfação por área
       const satCats = [
         {key:'satEducacao',   label:'Educação'},
         {key:'satSeguranca',  label:'Segurança'},
@@ -1011,7 +1098,6 @@
         }
       });
 
-      // 2. Região (doughnut)
       const regCounts = {};
       f.forEach(x => { const r=x.regiao||'Não informado'; regCounts[r]=(regCounts[r]||0)+1; });
       chartInstances.reg = new Chart(document.getElementById('chartRegiao').getContext('2d'), {
@@ -1026,7 +1112,6 @@
         }
       });
 
-      // 3. Serviços problemáticos
       const servCounts = {};
       f.forEach(x => { const v=x.servicosProblema||'Não informado'; servCounts[v]=(servCounts[v]||0)+1; });
       const servSorted = Object.entries(servCounts).sort((a,b)=>b[1]-a[1]);
@@ -1045,7 +1130,6 @@
         }
       });
 
-      // 4. Timeline — PT-BR, agrupado por data
       const dateCounts = {};
       f.forEach(x => {
         if (x.date) {
@@ -1054,154 +1138,51 @@
         }
       });
 
-      console.log('[Timeline] datas encontradas:', Object.keys(dateCounts).length, dateCounts);
+      if (Object.keys(dateCounts).length > 0) {
+        const dateKeys = Object.keys(dateCounts).sort((a,b) => {
+          const [da,ma,ya] = a.split('/').map(Number);
+          const [db,mb,yb] = b.split('/').map(Number);
+          return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
+        });
 
-      if (Object.keys(dateCounts).length === 0) {
-        // sem datas válidas: mostrar aviso na canvas
-        const ctx4 = document.getElementById('chartTimeline').getContext('2d');
-        ctx4.font = '14px Sora, sans-serif';
-        ctx4.fillStyle = '#94a3b8';
-        ctx4.textAlign = 'center';
-        ctx4.fillText('Nenhuma data válida encontrada nos dados.', ctx4.canvas.width/2, ctx4.canvas.height/2);
-        return;
-      }
-
-      const dateKeys = Object.keys(dateCounts).sort((a,b) => {
-        const [da,ma,ya] = a.split('/').map(Number);
-        const [db,mb,yb] = b.split('/').map(Number);
-        return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
-      });
-
-      chartInstances.timeline = new Chart(document.getElementById('chartTimeline').getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: dateKeys,
-          datasets: [{
-            label: 'Respostas/dia',
-            data: dateKeys.map(k=>dateCounts[k]),
-            borderColor: '#0f2b46',
-            backgroundColor: 'rgba(15,43,70,0.07)',
-            fill: true,
-            tension: 0.35,
-            pointRadius: 5,
-            pointBackgroundColor: '#d97706',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-          }]
-        },
-        options: {
-          responsive:true, maintainAspectRatio:false,
-          plugins: { legend:{ display:false } },
-          scales: {
-            y: { beginAtZero:true, ticks:{ stepSize:1 }, grid:{ color:'#f1f5f9' } },
-            x: { ticks:{ maxRotation:45, minRotation:0, font:{size:10} }, grid:{ display:false } }
+        chartInstances.timeline = new Chart(document.getElementById('chartTimeline').getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: dateKeys,
+            datasets: [{
+              label: 'Respostas/dia',
+              data: dateKeys.map(k=>dateCounts[k]),
+              borderColor: '#0f2b46',
+              backgroundColor: 'rgba(15,43,70,0.07)',
+              fill: true,
+              tension: 0.35,
+              pointRadius: 5,
+              pointBackgroundColor: '#d97706',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+            }]
+          },
+          options: {
+            responsive:true, maintainAspectRatio:false,
+            plugins: { legend:{ display:false } },
+            scales: {
+              y: { beginAtZero:true, ticks:{ stepSize:1 }, grid:{ color:'#f1f5f9' } },
+              x: { ticks:{ maxRotation:45, minRotation:0, font:{size:10} }, grid:{ display:false } }
+            }
           }
-        }
-      });
-    }
-
-    function showEmpty() {
-      emptyState.classList.remove('hidden');
-      kpiSection.classList.add('hidden');
-      chartsSection.classList.add('hidden');
-      filtersPanel.classList.add('hidden');
-    }
-    function hideEmpty() {
-      emptyState.classList.add('hidden');
-      kpiSection.classList.remove('hidden');
-      chartsSection.classList.remove('hidden');
-      filtersPanel.classList.remove('hidden');
-    }
-
-    async function fetchWithProxy(proxyFn) {
-      const url = proxyFn(CSV_URL);
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 8000);
-      try {
-        const resp = await fetch(url, { signal: ctrl.signal });
-        clearTimeout(timer);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        return await resp.text();
-      } catch(e) {
-        clearTimeout(timer);
-        throw e;
+        });
       }
     }
 
-    async function fetchCSV() {
-      // Check session cache first
-      try {
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        const ts = sessionStorage.getItem(CACHE_TS);
-        if (cached && ts && (Date.now() - +ts) < CACHE_TTL) {
-          console.log('[Cache] Using cached CSV');
-          return cached;
-        }
-      } catch(_) {}
-
-      // Race proxies: first one that responds wins
-      let lastErr;
-      for (const proxyFn of PROXIES) {
-        try {
-          const text = await fetchWithProxy(proxyFn);
-          // Store in cache
-          try { sessionStorage.setItem(CACHE_KEY, text); sessionStorage.setItem(CACHE_TS, Date.now()); } catch(_) {}
-          return text;
-        } catch(e) {
-          lastErr = e;
-          console.warn('[Proxy] falhou, tentando próximo...', e.message);
-        }
-      }
-      throw lastErr || new Error('Todos os proxies falharam.');
-    }
-
-    async function loadData() {
-      btnLoad.disabled = true;
-      btnLoad.textContent = '⏳ Conectando...';
-      setStatus('', 'Carregando...');
-      // Force refresh cache if user clicked "Sincronizar"
-      if (rawData.length) { try { sessionStorage.removeItem(CACHE_KEY); } catch(_) {} }
-      try {
-        const csv = await fetchCSV();
-        const processed = processCSVData(csv);
-        rawData = processed.data; headers = processed.headers;
-        if (!rawData.length) throw new Error('Planilha vazia.');
-        filteredData = [...rawData];
-        populateFilters();
-        renderAll();
-        updateDrawer();
-        setStatus('loaded', `${rawData.length} respostas`);
-        btnLoad.textContent = '🔄 Sincronizar';
-      } catch(e) {
-        console.error(e);
-        setStatus('error', `Erro: ${e.message}`);
-        showEmpty();
-        btnLoad.textContent = '⚡ Tentar Novamente';
-      } finally {
-        btnLoad.disabled = false;
-      }
-    }
-
-    function setStatus(type, msg) {
-      statusBadge.className = 'status-badge ' + (type||'');
-      statusBadge.innerHTML = `<span class="status-dot"></span>${msg}`;
-    }
-
-    // ── PDF EXPORT ──────────────────────────────────────────────────
     function exportPDF() {
-      const data = filteredData.length ? filteredData : rawData;
-      if (!data.length) return alert('Sem dados para exportar.');
-      const f = data.map(extractFields);
+      const f = filteredData.map(extractFields);
       const t = f.length;
-
-      // Coleta imagens dos gráficos
       const imgs = {};
-      ['chartSatisfacao','chartRegiao','chartServicos','chartTimeline'].forEach(id => {
-        const c = document.getElementById(id);
+      Object.entries(chartInstances).forEach(([id, inst]) => {
+        const c = inst.canvas;
         if (c) imgs[id] = c.toDataURL('image/png');
       });
 
-      // Cálculos
       const cats = ['satEducacao','satSeguranca','satTransporte','satSaude','satSaneamento','desemprego','telefonia'];
       let s=0,c=0; cats.forEach(k=>f.forEach(x=>{ if(!isNaN(x[k])){s+=x[k];c++;} }));
       const mediaGeral = c?(s/c).toFixed(1):'—';
@@ -1216,37 +1197,29 @@
       const topProb = Object.entries(probC).sort((a,b)=>b[1]-a[1])[0];
       const segVals = f.map(x=>x.satSeguranca).filter(v=>!isNaN(v));
       const mediaSeg = segVals.length?(segVals.reduce((a,b)=>a+b,0)/segVals.length).toFixed(1):'—';
-      const lixo = probC['Coleta de lixo']||0;
-      const pctLixo = t?Math.round(lixo/t*100):0;
 
-      // Distribuição por região
-      const regC={};
-      f.forEach(x=>{ const r=x.regiao||'Não informado'; regC[r]=(regC[r]||0)+1; });
-      const regRows = Object.entries(regC).sort((a,b)=>b[1]-a[1])
-        .map(([r,n])=>`<tr><td>${r}</td><td>${n}</td><td>${Math.round(n/t*100)}%</td></tr>`).join('');
-
-      // Distribuição por faixa etária
-      const ageC={};
-      f.forEach(x=>{ const a=x.idade||'Não informado'; ageC[a]=(ageC[a]||0)+1; });
-      const ageRows = Object.entries(ageC).sort((a,b)=>b[1]-a[1])
-        .map(([a,n])=>`<tr><td>${a}</td><td>${n}</td><td>${Math.round(n/t*100)}%</td></tr>`).join('');
-
-      // Serviços problemáticos
-      const servRows = Object.entries(probC).sort((a,b)=>b[1]-a[1])
-        .map(([s,n])=>`<tr><td>${s}</td><td>${n}</td><td>${Math.round(n/t*100)}%</td></tr>`).join('');
+      // Métricas por questão para o PDF
+      const satCatsFull = [
+        {key:'satEducacao',   label:'Educação'},
+        {key:'satSeguranca',  label:'Segurança'},
+        {key:'satTransporte', label:'Transporte'},
+        {key:'satSaude',      label:'Saúde (SUS)'},
+        {key:'satSaneamento', label:'Saneamento'},
+        {key:'desemprego',    label:'Desemprego'},
+        {key:'telefonia',     label:'Telefonia/Internet'}
+      ];
+      const questionMetricsRows = satCatsFull.map(cat => {
+        const vals = f.map(x=>x[cat.key]).filter(v=>!isNaN(v));
+        const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : '—';
+        const pos = vals.filter(v => v >= 4).length;
+        const neg = vals.filter(v => v <= 2).length;
+        return `<tr><td>${cat.label}</td><td>${avg}</td><td>${pos} (${Math.round(pos/t*100)}%)</td><td>${neg} (${Math.round(neg/t*100)}%)</td></tr>`;
+      }).join('');
 
       const geradoEm = new Date().toLocaleString('pt-BR', {
         day:'2-digit', month:'2-digit', year:'numeric',
         hour:'2-digit', minute:'2-digit'
       });
-
-      const filtrosAtivos = [
-        filterRegion.value ? `Região: ${filterRegion.value}` : '',
-        filterAge.value ? `Faixa etária: ${filterAge.value}` : '',
-        filterStatus.value ? `Status: ${filterStatus.value}` : '',
-        filterDateStart.value ? `De: ${filterDateStart.value}` : '',
-        filterDateEnd.value ? `Até: ${filterDateEnd.value}` : '',
-      ].filter(Boolean).join(' &nbsp;·&nbsp; ') || 'Nenhum filtro aplicado';
 
       const html = `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -1255,597 +1228,66 @@
   <title>Relatório Campanha 2026 · ${geradoEm}</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    @page {
-      size: A4 portrait;
-      margin: 18mm 15mm 20mm 15mm;
-    }
+    @page { size: A4 portrait; margin: 18mm 15mm 20mm 15mm; }
     @page :first { margin-top: 0; }
-
     * { margin:0; padding:0; box-sizing:border-box; }
-
-    body {
-      font-family: 'Sora', sans-serif;
-      color: #1e293b;
-      font-size: 11px;
-      line-height: 1.6;
-      background: #fff;
-    }
-
-    /* ── CAPA ── */
-    .cover {
-      background: #fff;
-      color: #0b1120;
-      min-height: 297mm; /* aprox. A4 */
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 0;
-      page-break-after: always;
-    }
-    .cover-top {
-      background: transparent;
-      padding: 28px 40px 22px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .cover-logo {
-      width: 52px; height: 52px;
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      color: #d97706;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      font-size: 1.8rem;
-    }
-    .cover-top-text { line-height: 1.2; }
+    body { font-family: 'Sora', sans-serif; color: #1e293b; font-size: 11px; line-height: 1.6; background: #fff; }
+    .cover { background: #fff; color: #0b1120; min-height: 297mm; display: flex; flex-direction: column; justify-content: space-between; padding: 0; page-break-after: always; }
+    .cover-top { padding: 28px 40px 22px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #e2e8f0; }
+    .cover-logo { width: 52px; height: 52px; background: #fffbeb; border: 1px solid #fde68a; color: #d97706; border-radius: 14px; display: grid; place-items: center; font-size: 1.8rem; }
     .cover-top-text .brand { font-size: 1.1rem; font-weight: 800; color: #0b1120; }
-    .cover-top-text .sub { font-size: .8rem; color: #64748b; margin-top: 3px; }
-
-    .cover-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 60px 40px 40px;
-    }
-    .cover-tag {
-      font-size: .72rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #d97706;
-      margin-bottom: 16px;
-    }
-    .cover-title {
-      font-size: 3rem;
-      font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -1.5px;
-      color: #0b1120;
-      margin-bottom: 10px;
-    }
+    .cover-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 60px 40px 40px; }
+    .cover-title { font-size: 3rem; font-weight: 800; line-height: 1.05; letter-spacing: -1.5px; color: #0b1120; margin-bottom: 10px; }
     .cover-title em { font-style: normal; color: #d97706; }
-    .cover-desc {
-      font-size: .9rem;
-      color: #475569;
-      max-width: 420px;
-      margin-bottom: 40px;
-    }
-    .cover-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      max-width: 480px;
-    }
-    .cover-stat {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .cover-stat .val {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #d97706;
-      font-family: 'JetBrains Mono', monospace;
-      line-height: 1;
-    }
+    .cover-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 480px; }
+    .cover-stat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+    .cover-stat .val { font-size: 2rem; font-weight: 800; color: #d97706; font-family: 'JetBrains Mono', monospace; line-height: 1; }
     .cover-stat .lbl { font-size: .68rem; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
-
-    .cover-footer {
-      padding: 24px 40px;
-      border-top: 1px solid #e2e8f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .cover-footer .meta { font-size: .72rem; color: #475569; }
-    .cover-footer .date { font-size: .72rem; color: #d97706; font-weight: 600; }
-
-    /* ── PÁGINAS INTERNAS ── */
-    .page {
-      page-break-before: always;
-      padding: 0;
-    }
-    .page-header {
-      background: #0b1120;
-      color: #fff;
-      padding: 18px 28px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-    .page-header .ph-left { display: flex; align-items: center; gap: 10px; }
-    .page-header .ph-icon {
-      width: 32px; height: 32px;
-      background: #d97706;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      font-size: 1rem;
-    }
+    .page { page-break-before: always; padding: 0; }
+    .page-header { background: #0b1120; color: #fff; padding: 18px 28px 14px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
     .page-header h2 { font-size: 1rem; font-weight: 700; }
-    .page-header .ph-sub { font-size: .7rem; color: #94a3b8; }
-    .page-header .ph-right { font-size: .7rem; color: #475569; font-family: 'JetBrains Mono', monospace; }
-
-    .page-body { padding: 0 28px 28px; }
-
-    /* ── SEÇÃO ── */
-    .section-label {
-      font-size: .68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #94a3b8;
-      margin-bottom: 10px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    /* ── KPI GRID ── */
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-      page-break-inside: avoid;
-    }
-    .kpi-row.two-col { grid-template-columns: repeat(2, 1fr); }
-    .pdf-kpi {
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 14px;
-      page-break-inside: avoid;
-    }
-    .pdf-kpi .lbl { font-size: .68rem; text-transform: uppercase; color: #94a3b8; font-weight: 700; letter-spacing: .5px; }
-    .pdf-kpi .val {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: #0b1120;
-      line-height: 1.1;
-      margin: 4px 0;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .pdf-kpi .sub { font-size: .68rem; color: #94a3b8; }
-    .pdf-kpi .badge {
-      display: inline-block;
-      margin-top: 4px;
-      font-size: .65rem;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 20px;
-    }
-    .badge-g { background: #dcfce7; color: #166534; }
-    .badge-w { background: #fef3c7; color: #92400e; }
-    .badge-r { background: #fee2e2; color: #991b1b; }
-
-    .stripe-blue   { border-top: 3px solid #1d4ed8; }
-    .stripe-green  { border-top: 3px solid #059669; }
-    .stripe-red    { border-top: 3px solid #dc2626; }
-    .stripe-gold   { border-top: 3px solid #d97706; }
-    .stripe-purple { border-top: 3px solid #7c3aed; }
-    .stripe-teal   { border-top: 3px solid #0891b2; }
-
-    /* ── CHARTS ── */
-    .chart-2col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 20px;
-      page-break-inside: avoid;
-    }
-    .pdf-chart-box {
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 14px;
-      page-break-inside: avoid;
-    }
-    .pdf-chart-box h4 {
-      font-size: .8rem;
-      font-weight: 700;
-      color: #0b1120;
-      margin-bottom: 8px;
-    }
-    .pdf-chart-box img {
-      width: 100%;
-      height: auto;
-      max-height: 180px;
-      object-fit: contain;
-      display: block;
-    }
-
-    /* ── TABLES ── */
-    .pdf-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .8rem;
-      margin-bottom: 20px;
-      page-break-inside: avoid;
-    }
-    .pdf-table thead tr {
-      background: #0b1120;
-      color: #fff;
-    }
-    .pdf-table thead th {
-      padding: 8px 12px;
-      text-align: left;
-      font-weight: 700;
-      font-size: .72rem;
-      letter-spacing: .3px;
-    }
-    .pdf-table tbody tr:nth-child(even) { background: #f8fafc; }
-    .pdf-table tbody td {
-      padding: 7px 12px;
-      color: #374151;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .pdf-table tbody td:first-child { font-weight: 600; color: #0b1120; }
-
-    /* ── PROGRESS BAR ── */
-    .progress-row { margin-bottom: 8px; page-break-inside: avoid; }
-    .progress-label { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: .75rem; font-weight: 600; color: #374151; }
-    .progress-bar-bg { background: #f1f5f9; border-radius: 4px; height: 8px; }
-    .progress-bar-fill { height: 8px; border-radius: 4px; background: #d97706; }
-
-    /* ── FILTROS BOX ── */
-    .filters-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: .75rem;
-      color: #475569;
-      page-break-inside: avoid;
-      margin-bottom: 16px;
-    }
-    .filters-box strong { color: #0b1120; }
-
-    /* ── PRINT BTN ── */
-    .print-bar {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      display: flex;
-      gap: 10px;
-    }
-    @media print {
-      .print-bar { display: none !important; }
-      .cover { min-height: auto; }
-      /* Fundo nulo na capa para economia de tinta */
-      .cover { background: transparent !important; }
-      .cover-body, .cover-footer { background: transparent !important; }
-      .cover-title { color: #0b1120 !important; }
-      .cover-title em { color: #d97706 !important; }
-      .cover-tag { color: #d97706 !important; }
-      .cover-desc { color: #374151 !important; }
-      .cover-footer .meta { color: #374151 !important; }
-      .cover-footer .date { color: #d97706 !important; }
-      .cover-footer { border-top-color: #e2e8f0 !important; }
-      .cover-stat { background: #f8fafc !important; border-color: #e2e8f0 !important; }
-      .cover-stat .lbl { color: #6b7280 !important; }
-    }
-    .btn-p {
-      padding: 12px 24px;
-      border-radius: 50px;
-      font-family: 'Sora', sans-serif;
-      font-size: .9rem;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 4px 20px rgba(0,0,0,.2);
-    }
-    .btn-print { background: #0b1120; color: #fff; }
-    .btn-print:hover { background: #1e293b; }
-    .btn-close { background: #fff; color: #374151; border: 1px solid #e2e8f0; }
+    .section-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; }
+    .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .pdf-table th { background: #f8fafc; text-align: left; padding: 10px; font-size: .7rem; text-transform: uppercase; color: #64748b; border: 1px solid #e2e8f0; }
+    .pdf-table td { padding: 10px; border: 1px solid #e2e8f0; font-size: .8rem; }
+    .print-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 15px; border-top: 1px solid #e2e8f0; display: flex; justify-content: center; gap: 10px; z-index: 1000; }
+    .btn-p { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-print { background: #d97706; color: #fff; }
+    @media print { .print-bar { display: none; } }
   </style>
 </head>
 <body>
-
-  <!-- ════════════════════════════════════════
-       PÁGINA 1 — CAPA
-  ════════════════════════════════════════ -->
   <div class="cover">
     <div class="cover-top">
       <div class="cover-logo">📊</div>
-      <div class="cover-top-text">
-        <div class="brand">Campanha 2026</div>
-        <div class="sub">Relatório Oficial de Percepção Cidadã</div>
-      </div>
+      <div class="cover-top-text"><div class="brand">Campanha 2026</div><div class="sub">Painel de Pesquisa</div></div>
     </div>
-
     <div class="cover-body">
-      <div class="cover-tag">Análise de Campo · Rio de Janeiro</div>
-      <div class="cover-title">Percepção<br><em>Cidadã</em><br>2026</div>
-      <div class="cover-desc">Consolidação das respostas coletadas em campo, com análise de satisfação por área, distribuição regional e indicadores de engajamento eleitoral.</div>
-
+      <div class="cover-title">Percepção <em>Cidadã</em><br>Rio de Janeiro</div>
       <div class="cover-stats">
-        <div class="cover-stat">
-          <div class="val">${t}</div>
-          <div class="lbl">Respondentes</div>
-        </div>
-        <div class="cover-stat">
-          <div class="val">${mediaGeral}</div>
-          <div class="lbl">Satisfação Média</div>
-        </div>
-        <div class="cover-stat">
-          <div class="val">${pctAcred}%</div>
-          <div class="lbl">Conf. Governantes</div>
-        </div>
+        <div class="cover-stat"><div class="val">${t}</div><div class="lbl">Respondentes</div></div>
+        <div class="cover-stat"><div class="val">${mediaGeral}</div><div class="lbl">Satisfação</div></div>
+        <div class="cover-stat"><div class="val">${pctAcred}%</div><div class="lbl">Confiança</div></div>
       </div>
-    </div>
-
-    <div class="cover-footer">
-      <div class="meta">Filtros: ${filtrosAtivos}</div>
-      <div class="date">Gerado em ${geradoEm}</div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════
-       PÁGINA 2 — INDICADORES PRINCIPAIS
-  ════════════════════════════════════════ -->
   <div class="page">
-    <div class="page-header">
-      <div class="ph-left">
-        <div class="ph-icon">📈</div>
-        <div>
-          <div style="font-weight:700;">Indicadores Principais</div>
-          <div class="ph-sub">Métricas consolidadas após filtros</div>
-        </div>
-      </div>
-      <div class="ph-right">Campanha 2026 · pág. 2</div>
-    </div>
-    <div class="page-body">
-
-      <div class="section-label">Visão Geral · ${t} respondentes</div>
-
-      <div class="kpi-row">
-        <div class="pdf-kpi stripe-blue">
-          <div class="lbl">Total de Respondentes</div>
-          <div class="val">${t}</div>
-          <div class="sub">após filtros aplicados</div>
-        </div>
-        <div class="pdf-kpi ${+mediaGeral>=3?'stripe-green':'stripe-red'}">
-          <div class="lbl">Satisfação Média Geral</div>
-          <div class="val">${mediaGeral}</div>
-          <div class="sub">escala 1 (ruim) a 5 (ótimo)</div>
-          <span class="badge ${+mediaGeral>=3?'badge-g':'badge-r'}">${+mediaGeral>=3?'✅ Boa avaliação':'⚠️ Abaixo do esperado'}</span>
-        </div>
-        <div class="pdf-kpi ${+mediaSeg>=3?'stripe-green':'stripe-red'}">
-          <div class="lbl">Satisfação com Segurança</div>
-          <div class="val">${mediaSeg}</div>
-          <div class="sub">média específica</div>
-          <span class="badge ${+mediaSeg<2.5?'badge-r':'badge-w'}">${+mediaSeg<2.5?'🔴 Ponto crítico':'⚠️ Atenção'}</span>
-        </div>
-      </div>
-
-      <div class="kpi-row">
-        <div class="pdf-kpi ${pctAcred>=50?'stripe-green':'stripe-red'}">
-          <div class="lbl">Confiança nos Governantes</div>
-          <div class="val">${pctAcred}%</div>
-          <div class="sub">${acred} de ${t} respondentes</div>
-          <span class="badge ${pctAcred>=50?'badge-g':'badge-r'}">${pctAcred>=50?'👍 Satisfatório':'📉 Baixa confiança'}</span>
-        </div>
-        <div class="pdf-kpi ${pctCand>=40?'stripe-green':'stripe-gold'}">
-          <div class="lbl">Possuem Candidato</div>
-          <div class="val">${pctCand}%</div>
-          <div class="sub">${cand} de ${t} respondentes</div>
-          <span class="badge ${pctCand<30?'badge-w':'badge-g'}">${pctCand<30?'📌 Baixo engajamento':'👍 Engajamento razoável'}</span>
-        </div>
-        <div class="pdf-kpi stripe-teal">
-          <div class="lbl">Iniciativas p/ Mulher — Reconhecidas</div>
-          <div class="val">${pctMulher}%</div>
-          <div class="sub">${mulher} de ${t} respondentes</div>
-          <span class="badge ${pctMulher<15?'badge-w':'badge-g'}">${pctMulher<15?'🔍 Visibilidade baixa':'✅ OK'}</span>
-        </div>
-      </div>
-
-      <div class="kpi-row two-col">
-        <div class="pdf-kpi ${pctLixo>=30?'stripe-red':'stripe-green'}">
-          <div class="lbl">Coleta de Lixo como Problema</div>
-          <div class="val">${pctLixo}%</div>
-          <div class="sub">${lixo} menções dos respondentes</div>
-          <span class="badge ${pctLixo>=30?'badge-r':'badge-g'}">${pctLixo>=30?'🚮 Alta insatisfação':'✅ Controlado'}</span>
-        </div>
-        <div class="pdf-kpi stripe-gold">
-          <div class="lbl">Serviço Mais Problemático</div>
-          <div class="val" style="font-size:1.1rem; letter-spacing:0;">${topProb?topProb[0]:'—'}</div>
-          <div class="sub">${topProb?`${topProb[1]} ocorrências registradas`:''}</div>
-          <span class="badge badge-w">⚠️ Destaque negativo</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       PÁGINA 3 — ANÁLISE GRÁFICA
-  ════════════════════════════════════════ -->
-  <div class="page">
-    <div class="page-header">
-      <div class="ph-left">
-        <div class="ph-icon">📊</div>
-        <div>
-          <div style="font-weight:700;">Análise Gráfica</div>
-          <div class="ph-sub">Satisfação por área e distribuição regional</div>
-        </div>
-      </div>
-      <div class="ph-right">Campanha 2026 · pág. 3</div>
-    </div>
-    <div class="page-body">
-
-      <div class="chart-2col">
-        <div class="pdf-chart-box">
-          <h4>📈 Satisfação Média por Área (escala 1–5)</h4>
-          <img src="${imgs.chartSatisfacao||''}" alt="Satisfação por área">
-        </div>
-        <div class="pdf-chart-box">
-          <h4>🗺️ Distribuição por Região</h4>
-          <img src="${imgs.chartRegiao||''}" alt="Distribuição regional">
-        </div>
-      </div>
-
-      <div class="chart-2col">
-        <div class="pdf-chart-box">
-          <h4>⚡ Serviços Mais Problemáticos</h4>
-          <img src="${imgs.chartServicos||''}" alt="Serviços problemáticos">
-        </div>
-        <div class="pdf-chart-box">
-          <h4>📅 Respostas ao Longo do Tempo</h4>
-          <img src="${imgs.chartTimeline||''}" alt="Linha do tempo">
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════════
-       PÁGINA 4 — TABELAS DETALHADAS
-  ════════════════════════════════════════ -->
-  <div class="page">
-    <div class="page-header">
-      <div class="ph-left">
-        <div class="ph-icon">📋</div>
-        <div>
-          <div style="font-weight:700;">Tabelas Detalhadas</div>
-          <div class="ph-sub">Distribuição regional, faixa etária e serviços</div>
-        </div>
-      </div>
-      <div class="ph-right">Campanha 2026 · pág. 4</div>
-    </div>
-    <div class="page-body">
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-        <div>
-          <div class="section-label" style="margin-bottom:8px;">Distribuição por Região</div>
-          <table class="pdf-table">
-            <thead><tr><th>Região</th><th>Respostas</th><th>%</th></tr></thead>
-            <tbody>${regRows}</tbody>
-          </table>
-        </div>
-        <div>
-          <div class="section-label" style="margin-bottom:8px;">Distribuição por Faixa Etária</div>
-          <table class="pdf-table">
-            <thead><tr><th>Faixa Etária</th><th>Respostas</th><th>%</th></tr></thead>
-            <tbody>${ageRows}</tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="section-label" style="margin-bottom:8px; margin-top:6px;">Serviços Problemáticos — Ranking Completo</div>
+    <div class="page-header"><h2>📊 Métricas Detalhadas das Questões</h2></div>
+    <div style="padding: 28px;">
       <table class="pdf-table">
-        <thead><tr><th>Serviço / Problema</th><th>Menções</th><th>% do total</th></tr></thead>
-        <tbody>${servRows}</tbody>
+        <thead><tr><th>Questão / Área</th><th>Média (1-5)</th><th>Positivas (4-5)</th><th>Negativas (1-2)</th></tr></thead>
+        <tbody>${questionMetricsRows}</tbody>
       </table>
-
-      <div class="section-label" style="margin-bottom:8px; margin-top:6px;">Satisfação por Área — Barras de Progresso</div>
-      ${[
-        {label:'Educação', key:'satEducacao'},
-        {label:'Segurança', key:'satSeguranca'},
-        {label:'Transporte', key:'satTransporte'},
-        {label:'Saúde (SUS)', key:'satSaude'},
-        {label:'Saneamento', key:'satSaneamento'},
-        {label:'Desemprego', key:'desemprego'},
-        {label:'Telefonia/Internet', key:'telefonia'}
-      ].map(cat => {
-        const vals = f.map(x=>x[cat.key]).filter(v=>!isNaN(v));
-        const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
-        const pct = Math.round(avg/5*100);
-        const color = avg>=4?'#059669':avg>=3?'#d97706':'#dc2626';
-        return `<div class="progress-row">
-          <div class="progress-label"><span>${cat.label}</span><span style="color:${color}; font-family:'JetBrains Mono',monospace;">${avg.toFixed(1)} / 5</span></div>
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%; background:${color};"></div></div>
-        </div>`;
-      }).join('')}
-
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════
-       PÁGINA 5 — CONTEXTO E FILTROS
-  ════════════════════════════════════════ -->
-  <div class="page">
-    <div class="page-header">
-      <div class="ph-left">
-        <div class="ph-icon">📌</div>
-        <div>
-          <div style="font-weight:700;">Contexto do Relatório</div>
-          <div class="ph-sub">Filtros ativos, metodologia e observações</div>
-        </div>
-      </div>
-      <div class="ph-right">Campanha 2026 · pág. 5</div>
-    </div>
-    <div class="page-body">
-
-      <div class="section-label" style="margin-bottom:8px;">Filtros Aplicados neste Relatório</div>
-      <div class="filters-box">
-        <strong>Região:</strong> ${filterRegion.value||'Todas'} &nbsp;·&nbsp;
-        <strong>Faixa Etária:</strong> ${filterAge.value||'Todas'} &nbsp;·&nbsp;
-        <strong>Status:</strong> ${filterStatus.value||'Todos'} &nbsp;·&nbsp;
-        <strong>De:</strong> ${filterDateStart.value||'—'} &nbsp;·&nbsp;
-        <strong>Até:</strong> ${filterDateEnd.value||'—'}
-      </div>
-
-      <div class="section-label" style="margin-bottom:8px; margin-top:16px;">Metodologia</div>
-      <p style="font-size:.8rem; color:#374151; line-height:1.7; margin-bottom:12px;">
-        Os dados foram coletados diretamente no campo por mobilizadores da campanha, registrados em formulário digital via Google Forms e armazenados em planilha Google Sheets de acesso controlado. A extração para este relatório ocorreu via exportação CSV pública, processada em tempo real pelo painel interativo.
-      </p>
-      <p style="font-size:.8rem; color:#374151; line-height:1.7; margin-bottom:12px;">
-        As métricas de satisfação utilizam escala Likert de 1 a 5 pontos, onde 1 representa insatisfação total e 5 plena satisfação. As médias foram calculadas excluindo respostas em branco.
-      </p>
-
-      <div class="section-label" style="margin-bottom:8px; margin-top:16px;">Resumo Executivo</div>
-      <table class="pdf-table" style="page-break-inside:avoid;">
-        <thead><tr><th>Indicador</th><th>Valor</th><th>Avaliação</th></tr></thead>
-        <tbody>
-          <tr><td>Total de respondentes</td><td>${t}</td><td>—</td></tr>
-          <tr><td>Satisfação média geral</td><td>${mediaGeral} / 5</td><td>${+mediaGeral>=3?'✅ Positivo':'⚠️ Negativo'}</td></tr>
-          <tr><td>Satisfação com segurança</td><td>${mediaSeg} / 5</td><td>${+mediaSeg<2.5?'🔴 Crítico':'⚠️ Atenção'}</td></tr>
-          <tr><td>Confiança nos governantes</td><td>${pctAcred}%</td><td>${pctAcred>=50?'✅ Positivo':'⚠️ Negativo'}</td></tr>
-          <tr><td>Engajamento eleitoral (têm candidato)</td><td>${pctCand}%</td><td>${pctCand>=40?'✅ Positivo':'⚠️ Baixo'}</td></tr>
-          <tr><td>Visibilidade de iniciativas para mulheres</td><td>${pctMulher}%</td><td>${pctMulher>=30?'✅ OK':'⚠️ Baixa'}</td></tr>
-          <tr><td>Problema mais citado</td><td colspan="2">${topProb?topProb[0]+' ('+topProb[1]+' menções)':'—'}</td></tr>
-        </tbody>
-      </table>
-
-      <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0; font-size:.7rem; color:#94a3b8; text-align:center;">
-        Relatório gerado automaticamente pelo Painel Campanha 2026 &nbsp;·&nbsp; ${geradoEm} &nbsp;·&nbsp; Confidencial
-      </div>
-    </div>
-  </div>
-
-  <!-- Botão de impressão -->
   <div class="print-bar">
-    <button class="btn-p btn-close" onclick="window.close()">✕ Fechar</button>
+    <button class="btn-p" onclick="window.close()">✕ Fechar</button>
     <button class="btn-p btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
   </div>
-
 </body>
 </html>`;
-
       const win = window.open('', '_blank', 'width=1050,height=850');
       if (!win) return alert('Popup bloqueado. Permita popups para este site.');
       win.document.write(html);
@@ -1853,72 +1295,88 @@
     }
 
     function updateDrawer() {
-      // Respondents
-      const COL_CONTATO = COL.CONTATO; // nome/contato na coluna 2
-      const names = rawData.map((obj, idx) => {
-        const raw = obj._raw;
-        const nome = (raw && raw[COL_CONTATO]) ? String(raw[COL_CONTATO]).trim() : '';
-        return nome || `Entrevistado #${idx + 1}`;
-      });
-      drawerCount.textContent = names.length;
-      drawerRespondentsList.innerHTML = names.length
-        ? names.map((n, i) => `<li class="drawer-item"><span class="drawer-item-num">${i+1}</span>${escHtml(n)}</li>`).join('')
-        : '<li class="drawer-empty">Nenhum entrevistado encontrado.</li>';
-
-      // Candidates cited
-      const candidateMap = new Map();
-      rawData.forEach(obj => {
-        const raw = obj._raw || [];
-        const primary = normalizeCandidateName(raw[COL.NOME_CANDIDATO_S]);
-        const secondary = normalizeCandidateName(raw[COL.NOME_CANDIDATO_X]);
-        [primary, secondary].filter(Boolean).forEach(name => {
-          const key = name.toLocaleLowerCase('pt-BR');
-          const current = candidateMap.get(key);
-          if (current) {
-            current.count += 1;
-          } else {
-            candidateMap.set(key, { name, count: 1 });
+      const data = filteredData.length ? filteredData : rawData;
+      const f = data.map(extractFields);
+      
+      // 1. Entrevistados com volume de respostas pos/neg
+      const satKeys = ['satEducacao','satSeguranca','satTransporte','satSaude','satSaneamento','desemprego','telefonia'];
+      const respondentsHtml = data.map((obj, i) => {
+        const fields = extractFields(obj);
+        const nome = obj._raw[COL.CONTATO] || `Entrevistado #${i+1}`;
+        let pos = 0, neg = 0;
+        satKeys.forEach(k => {
+          const v = fields[k];
+          if (!isNaN(v)) {
+            if (v >= 4) pos++;
+            if (v <= 2) neg++;
           }
         });
+        return `<li class="drawer-item">
+          <span class="drawer-item-num">${i+1}</span>
+          ${escHtml(nome)}
+          <div class="drawer-item-val">
+            <span class="val-pos">+${pos}</span>
+            <span class="val-neg">-${neg}</span>
+          </div>
+        </li>`;
+      }).join('');
+      drawerCount.textContent = data.length;
+      drawerRespondentsList.innerHTML = respondentsHtml || '<li class="drawer-empty">Nenhum dado.</li>';
+
+      // 2. Candidatos Citados + Mais Citado
+      const candidateMap = new Map();
+      data.forEach(obj => {
+        const raw = obj._raw || [];
+        const names = [normalizeCandidateName(raw[COL.NOME_CANDIDATO_S]), normalizeCandidateName(raw[COL.NOME_CANDIDATO_X])].filter(Boolean);
+        names.forEach(n => {
+          const key = n.toLowerCase();
+          const curr = candidateMap.get(key);
+          if (curr) curr.count++; else candidateMap.set(key, { name: n, count: 1 });
+        });
       });
-      const candidates = Array.from(candidateMap.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'pt-BR'));
+      const candidates = Array.from(candidateMap.values()).sort((a,b) => b.count - a.count);
+      const topCount = candidates.length ? candidates[0].count : 0;
+      
       drawerCandidateCount.textContent = candidates.length;
-      drawerCandidatesList.innerHTML = candidates.length
-        ? candidates.map((cand, i) => `<li class="drawer-item"><span class="drawer-item-num">${i+1}</span>${escHtml(cand.name)} <span style="margin-left:auto; font-size:.68rem; color:var(--ink-40);">${cand.count} menção${cand.count > 1 ? 'ões' : ''}</span></li>`).join('')
-        : '<li class="drawer-empty">Nenhum candidato mencionado.</li>';
+      drawerCandidatesList.innerHTML = candidates.map(c => `
+        <li class="drawer-item ${c.count === topCount && topCount > 0 ? 'top-candidate' : ''}">
+          ${escHtml(c.name)} <span style="margin-left:auto; font-size:.65rem; opacity:0.7;">${c.count} menções</span>
+        </li>`).join('') || '<li class="drawer-empty">Nenhum candidato.</li>';
 
-      // Questions (headers, skip technical cols)
-      const skipIdx = new Set([COL.TIMESTAMP, COL.PONTUACAO, COL.EMAIL, COL.MOBILIZADOR,
-                                COL.REGIAO_PESQUISA, COL.STATUS_ENTREVISTA, COL.NOME_CANDIDATO_X,
-                                COL.COLUNA24, COL.BAIRRO]);
-      const questions = headers.filter((h, i) => h && !skipIdx.has(i));
-      drawerQCount.textContent = questions.length;
-      drawerQuestionsList.innerHTML = questions.length
-        ? questions.map((q, i) => `<li class="drawer-item"><span class="drawer-item-num">Q${i+1}</span>${escHtml(q)}</li>`).join('')
-        : '<li class="drawer-empty">Nenhuma questão identificada.</li>';
+      // 3. Questões com Métricas
+      const skipIdx = new Set([COL.TIMESTAMP, COL.PONTUACAO, COL.EMAIL, COL.MOBILIZADOR, COL.REGIAO_PESQUISA, COL.STATUS_ENTREVISTA, COL.NOME_CANDIDATO_X, COL.COLUNA24, COL.BAIRRO]);
+      const questionsHtml = headers.map((h, i) => {
+        if (!h || skipIdx.has(i)) return null;
+        // Tentar extrair métrica se for numérica
+        const vals = f.map(row => {
+          const val = parseNumeric(row._raw ? row._raw[i] : '');
+          return val;
+        }).filter(v => !isNaN(v));
+        const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
+        return `<li class="drawer-item">
+          <span class="drawer-item-num">Q${i}</span>
+          ${escHtml(h)}
+          ${avg ? `<span class="q-metrics">Média: ${avg}</span>` : ''}
+        </li>`;
+      }).filter(Boolean).join('');
+      drawerQCount.textContent = headers.filter((h,i) => h && !skipIdx.has(i)).length;
+      drawerQuestionsList.innerHTML = questionsHtml || '<li class="drawer-empty">Nenhuma questão.</li>';
     }
 
-    function escHtml(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    // ── EVENTOS ──
     btnLoad.addEventListener('click', loadData);
     btnPDF.addEventListener('click', exportPDF);
     drawerToggle.addEventListener('click', () => {
       const isOpen = drawerBody.classList.toggle('open');
       drawerToggle.classList.toggle('open', isOpen);
-      drawerToggle.setAttribute('aria-expanded', isOpen);
     });
-    [filterRegion, filterAge, filterStatus, filterDateStart, filterDateEnd]
-      .forEach(el => el.addEventListener('change', applyFilters));
+    [filterRegion, filterAge, filterStatus, filterDateStart, filterDateEnd].forEach(el => el.addEventListener('change', applyFilters));
     btnClear.addEventListener('click', () => {
-      filterRegion.value = filterAge.value = filterStatus.value = '';
-      filterDateStart.value = filterDateEnd.value = '';
+      filterRegion.value = filterAge.value = filterStatus.value = filterDateStart.value = filterDateEnd.value = '';
       filteredData = [...rawData];
       renderAll();
     });
-
     showEmpty();
   })();
   </script>
