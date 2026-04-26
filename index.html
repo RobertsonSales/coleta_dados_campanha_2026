@@ -414,17 +414,112 @@
       .topbar { padding: 0 1rem; }
       .hero { padding: 2rem 1rem 1.5rem; }
       .main { padding: 1.25rem 1rem; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 600px) {
       .filter-group { min-width: 100%; }
-      .hero-text h1 { font-size: 1.6rem; }
+      .hero-text h1 { font-size: 1.4rem; }
+      .hero { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .hero > div:last-child { width: 100%; display: grid !important; grid-template-columns: repeat(3,1fr); gap: .5rem; }
+      .hero-stat { min-width: unset; padding: .75rem 1rem; }
+      .hero-stat .val { font-size: 1.5rem; }
       .topbar-right .btn-pdf { display: none; }
+      .topbar-brand { font-size: .82rem; gap: .5rem; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; gap: .75rem; }
+      .kpi-value { font-size: 1.5rem; }
+      .chart-container { height: 220px; }
+      .filters-bar { padding: 1rem; gap: .75rem; }
+      .main { padding: 1rem .75rem; gap: 1.25rem; }
+      .topbar { height: 52px; padding: 0 .85rem; }
+    }
+    @media (max-width: 400px) {
+      .hero > div:last-child { grid-template-columns: 1fr 1fr; }
+      .hero-stat:last-child { grid-column: 1 / -1; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .hero-text h1 { font-size: 1.25rem; }
+      .topbar-brand .dot { width: 24px; height: 24px; font-size: .8rem; }
     }
 
     /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--ink-20); border-radius: 3px; }
+    ::-webkit-scrollbar { width: 12px; height: 12px; }
+    ::-webkit-scrollbar-track { background: var(--ink-10); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--ink-40); border-radius: 6px; border: 3px solid var(--ink-10); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--ink-60); }
+
+    /* ── DRAWER — Entrevistados & Questões ── */
+    .drawer-wrap { display: flex; flex-direction: column; }
+    .drawer-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .7rem 1.2rem;
+      background: var(--surface);
+      border: 1.5px solid var(--ink-20);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--ink-60);
+      cursor: pointer;
+      transition: var(--trans);
+      box-shadow: var(--shadow);
+      width: 100%;
+      justify-content: space-between;
+    }
+    .drawer-toggle:hover { border-color: var(--gold); color: var(--gold); }
+    .drawer-toggle.open { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: transparent; }
+    .drawer-toggle .arrow { transition: transform .25s ease; font-size: .7rem; opacity: .6; }
+    .drawer-toggle.open .arrow { transform: rotate(180deg); }
+
+    .drawer-body {
+      background: var(--surface);
+      border: 1.5px solid var(--ink-20);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .4s cubic-bezier(.4,0,.2,1);
+    }
+    .drawer-body.open { max-height: 540px; overflow-y: auto; }
+
+    .drawer-inner { display: grid; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 700px) { .drawer-inner { grid-template-columns: 1fr; } }
+
+    .drawer-col { padding: 1.2rem 1.4rem; }
+    .drawer-col + .drawer-col { border-left: 1px solid var(--ink-20); }
+    @media (max-width: 700px) {
+      .drawer-col + .drawer-col { border-left: none; border-top: 1px solid var(--ink-20); }
+    }
+    .drawer-col-title {
+      font-size: .7rem; font-weight: 800; color: var(--ink-40);
+      text-transform: uppercase; letter-spacing: .8px;
+      margin-bottom: .85rem;
+      display: flex; align-items: center; gap: .45rem;
+    }
+    .drawer-col-title .ct-badge {
+      background: var(--gold-bg); color: var(--gold);
+      border: 1px solid #fde68a; border-radius: 20px;
+      padding: .1rem .5rem; font-size: .65rem; font-weight: 700;
+    }
+    .drawer-list {
+      list-style: none; display: flex; flex-direction: column;
+      gap: .3rem; max-height: 200px; overflow-y: auto; padding-right: 4px;
+    }
+    .drawer-list::-webkit-scrollbar { width: 5px; }
+    .drawer-list::-webkit-scrollbar-thumb { background: var(--ink-20); border-radius: 3px; }
+    .drawer-item {
+      display: flex; align-items: flex-start; gap: .45rem;
+      font-size: .77rem; color: var(--ink-60);
+      padding: .38rem .6rem; border-radius: var(--radius-sm);
+      background: var(--canvas); border: 1px solid transparent;
+      transition: var(--trans);
+    }
+    .drawer-item:hover { border-color: var(--ink-20); color: var(--ink); }
+    .drawer-item-num {
+      font-size: .63rem; font-weight: 700; color: var(--ink-40);
+      font-family: 'JetBrains Mono', monospace; min-width: 20px; margin-top: 1px;
+    }
+    .drawer-empty { font-size: .8rem; color: var(--ink-40); font-style: italic; padding: .5rem .6rem; }
   </style>
 </head>
 <body>
@@ -492,6 +587,36 @@
       <button id="btnClearFilters" class="btn-clear">✕ Limpar Filtros</button>
     </div>
 
+    <!-- Drawer: Entrevistados & Questões -->
+    <div class="drawer-wrap" id="drawerWrap">
+      <button class="drawer-toggle" id="drawerToggle" aria-expanded="false">
+        <span>📋 &nbsp;Entrevistados e Questões da Pesquisa</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="drawer-body" id="drawerBody" role="region" aria-label="Entrevistados e questões">
+        <div class="drawer-inner">
+          <!-- Coluna: Entrevistados -->
+          <div class="drawer-col">
+            <div class="drawer-col-title">
+              👤 Entrevistados <span class="ct-badge" id="drawerCount">0</span>
+            </div>
+            <ul class="drawer-list" id="drawerRespondentsList">
+              <li class="drawer-empty">Carregue os dados para ver os entrevistados.</li>
+            </ul>
+          </div>
+          <!-- Coluna: Questões -->
+          <div class="drawer-col">
+            <div class="drawer-col-title">
+              ❓ Questões da Entrevista <span class="ct-badge" id="drawerQCount">0</span>
+            </div>
+            <ul class="drawer-list" id="drawerQuestionsList">
+              <li class="drawer-empty">Carregue os dados para ver as questões.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Empty state -->
     <div id="emptyState" class="empty-state">
       <div class="empty-icon">📋</div>
@@ -545,7 +670,16 @@
   <script>
   (function() {
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVpBIQDx5NkfhIR-c9lc761IeQFxfxpzIhczLtOIRB11kIf1u_FFDWfT8_KSqOGa-rkaBg47hsWW6y/pub?output=csv';
-    const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+    const CACHE_KEY   = 'campanha2026_csv';
+    const CACHE_TS    = 'campanha2026_ts';
+    const CACHE_TTL   = 5 * 60 * 1000; // 5 min
+
+    // Proxies ordered by speed
+    const PROXIES = [
+      u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+      u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+      u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+    ];
 
     let rawData = [], headers = [], filteredData = [], chartInstances = {};
 
@@ -573,6 +707,12 @@
     const filterDateStart = document.getElementById('filterDateStart');
     const filterDateEnd   = document.getElementById('filterDateEnd');
     const btnClear     = document.getElementById('btnClearFilters');
+    const drawerToggle = document.getElementById('drawerToggle');
+    const drawerBody   = document.getElementById('drawerBody');
+    const drawerRespondentsList = document.getElementById('drawerRespondentsList');
+    const drawerQuestionsList   = document.getElementById('drawerQuestionsList');
+    const drawerCount  = document.getElementById('drawerCount');
+    const drawerQCount = document.getElementById('drawerQCount');
 
     // ── UTILS ──
     function parseNumeric(v) {
@@ -906,16 +1046,54 @@
       filtersPanel.classList.remove('hidden');
     }
 
+    async function fetchWithProxy(proxyFn) {
+      const url = proxyFn(CSV_URL);
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      try {
+        const resp = await fetch(url, { signal: ctrl.signal });
+        clearTimeout(timer);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return await resp.text();
+      } catch(e) {
+        clearTimeout(timer);
+        throw e;
+      }
+    }
+
     async function fetchCSV() {
-      const resp = await fetch(CORS_PROXY + encodeURIComponent(CSV_URL));
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      return await resp.text();
+      // Check session cache first
+      try {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        const ts = sessionStorage.getItem(CACHE_TS);
+        if (cached && ts && (Date.now() - +ts) < CACHE_TTL) {
+          console.log('[Cache] Using cached CSV');
+          return cached;
+        }
+      } catch(_) {}
+
+      // Race proxies: first one that responds wins
+      let lastErr;
+      for (const proxyFn of PROXIES) {
+        try {
+          const text = await fetchWithProxy(proxyFn);
+          // Store in cache
+          try { sessionStorage.setItem(CACHE_KEY, text); sessionStorage.setItem(CACHE_TS, Date.now()); } catch(_) {}
+          return text;
+        } catch(e) {
+          lastErr = e;
+          console.warn('[Proxy] falhou, tentando próximo...', e.message);
+        }
+      }
+      throw lastErr || new Error('Todos os proxies falharam.');
     }
 
     async function loadData() {
       btnLoad.disabled = true;
       btnLoad.textContent = '⏳ Conectando...';
       setStatus('', 'Carregando...');
+      // Force refresh cache if user clicked "Sincronizar"
+      if (rawData.length) { try { sessionStorage.removeItem(CACHE_KEY); } catch(_) {} }
       try {
         const csv = await fetchCSV();
         const processed = processCSVData(csv);
@@ -924,6 +1102,7 @@
         filteredData = [...rawData];
         populateFilters();
         renderAll();
+        updateDrawer();
         setStatus('loaded', `${rawData.length} respostas`);
         btnLoad.textContent = '🔄 Sincronizar';
       } catch(e) {
@@ -1286,6 +1465,18 @@
     @media print {
       .print-bar { display: none !important; }
       .cover { min-height: auto; }
+      /* Fundo nulo na capa para economia de tinta */
+      .cover { background: transparent !important; }
+      .cover-body, .cover-footer { background: transparent !important; }
+      .cover-title { color: #0b1120 !important; }
+      .cover-title em { color: #d97706 !important; }
+      .cover-tag { color: #d97706 !important; }
+      .cover-desc { color: #374151 !important; }
+      .cover-footer .meta { color: #374151 !important; }
+      .cover-footer .date { color: #d97706 !important; }
+      .cover-footer { border-top-color: #e2e8f0 !important; }
+      .cover-stat { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+      .cover-stat .lbl { color: #6b7280 !important; }
     }
     .btn-p {
       padding: 12px 24px;
@@ -1591,9 +1782,42 @@
       win.document.close();
     }
 
+    function updateDrawer() {
+      // Respondents
+      const COL_CONTATO = COL.CONTATO; // nome/contato na coluna 2
+      const names = rawData.map((obj, idx) => {
+        const raw = obj._raw;
+        const nome = (raw && raw[COL_CONTATO]) ? String(raw[COL_CONTATO]).trim() : '';
+        return nome || `Entrevistado #${idx + 1}`;
+      });
+      drawerCount.textContent = names.length;
+      drawerRespondentsList.innerHTML = names.length
+        ? names.map((n, i) => `<li class="drawer-item"><span class="drawer-item-num">${i+1}</span>${escHtml(n)}</li>`).join('')
+        : '<li class="drawer-empty">Nenhum entrevistado encontrado.</li>';
+
+      // Questions (headers, skip technical cols)
+      const skipIdx = new Set([COL.TIMESTAMP, COL.PONTUACAO, COL.EMAIL, COL.MOBILIZADOR,
+                                COL.REGIAO_PESQUISA, COL.STATUS_ENTREVISTA, COL.NOME_CANDIDATO_X,
+                                COL.COLUNA24, COL.BAIRRO]);
+      const questions = headers.filter((h, i) => h && !skipIdx.has(i));
+      drawerQCount.textContent = questions.length;
+      drawerQuestionsList.innerHTML = questions.length
+        ? questions.map((q, i) => `<li class="drawer-item"><span class="drawer-item-num">Q${i+1}</span>${escHtml(q)}</li>`).join('')
+        : '<li class="drawer-empty">Nenhuma questão identificada.</li>';
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
     // ── EVENTOS ──
     btnLoad.addEventListener('click', loadData);
     btnPDF.addEventListener('click', exportPDF);
+    drawerToggle.addEventListener('click', () => {
+      const isOpen = drawerBody.classList.toggle('open');
+      drawerToggle.classList.toggle('open', isOpen);
+      drawerToggle.setAttribute('aria-expanded', isOpen);
+    });
     [filterRegion, filterAge, filterStatus, filterDateStart, filterDateEnd]
       .forEach(el => el.addEventListener('change', applyFilters));
     btnClear.addEventListener('click', () => {
