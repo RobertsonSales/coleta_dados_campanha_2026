@@ -201,19 +201,7 @@
       gap: 1.75rem;
     }
 
-    /* ── FILTERS ── */
-    .filters-bar {
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 1.2rem 1.5rem;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      gap: 1rem;
-      border: 1px solid var(--ink-20);
-    }
-    .filters-bar.hidden { display: none; }
+    /* ── FILTERS (filter-group styles) ── */
     .filter-group {
       display: flex;
       flex-direction: column;
@@ -462,7 +450,7 @@
       .kpi-card { padding: 1rem; }
       .kpi-value { font-size: 1.4rem; }
       .chart-container { height: 220px; }
-      .filters-bar { padding: 1rem; gap: .75rem; }
+      .filters-bar.open { padding: 1rem; gap: .75rem; }
     }
 
     /* ── SCROLLBAR ── */
@@ -555,6 +543,61 @@
     .top-candidate::after { content: '🏆'; margin-left: 4px; }
 
     .drawer-empty { font-size: .8rem; color: var(--ink-40); font-style: italic; padding: .5rem .6rem; }
+
+    /* ── FILTER WRAP (retrátil) ── */
+    .filter-wrap { display: flex; flex-direction: column; }
+    .filter-wrap.hidden { display: none; }
+    .filter-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .7rem 1.2rem;
+      background: var(--surface);
+      border: 1.5px solid var(--ink-20);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--ink-60);
+      cursor: pointer;
+      transition: var(--trans);
+      box-shadow: var(--shadow);
+      width: 100%;
+      justify-content: space-between;
+    }
+    .filter-toggle-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .filter-toggle-btn.open { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: transparent; }
+    .filter-toggle-btn .arrow { transition: transform .25s ease; font-size: .7rem; opacity: .6; }
+    .filter-toggle-btn.open .arrow { transform: rotate(180deg); }
+    .filter-active-count {
+      background: var(--gold-bg); color: var(--gold);
+      border: 1px solid #fde68a; border-radius: 20px;
+      padding: .1rem .55rem; font-size: .65rem; font-weight: 700;
+      display: none;
+    }
+    .filter-active-count.visible { display: inline-block; }
+
+    .filters-bar {
+      background: var(--surface);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow);
+      padding: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .4s cubic-bezier(.4,0,.2,1), padding .4s;
+      border: 1.5px solid var(--ink-20);
+      border-top: none;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 0;
+    }
+    .filters-bar.open {
+      max-height: 200px;
+      padding: 1.2rem 1.5rem;
+      gap: 1rem;
+    }
+    .filters-bar.hidden { display: none; }
   </style>
 </head>
 <body>
@@ -597,29 +640,38 @@
   <!-- MAIN CONTENT -->
   <div class="main">
 
-    <!-- Filters -->
-    <div id="filtersPanel" class="filters-bar hidden">
-      <div class="filter-group">
-        <label>Região</label>
-        <select id="filterRegion"><option value="">Todas as regiões</option></select>
+    <!-- Filters (retrátil) -->
+    <div class="filter-wrap hidden" id="filterWrap">
+      <button class="filter-toggle-btn" id="filterToggleBtn" aria-expanded="false">
+        <span>🔍 &nbsp;Filtros de Pesquisa</span>
+        <span style="display:flex;align-items:center;gap:.5rem;margin-left:auto;">
+          <span class="filter-active-count" id="filterActiveCount">0 ativos</span>
+          <span class="arrow">▼</span>
+        </span>
+      </button>
+      <div id="filtersPanel" class="filters-bar">
+        <div class="filter-group">
+          <label>Região</label>
+          <select id="filterRegion"><option value="">Todas as regiões</option></select>
+        </div>
+        <div class="filter-group">
+          <label>Faixa Etária</label>
+          <select id="filterAge"><option value="">Todas</option></select>
+        </div>
+        <div class="filter-group">
+          <label>Status Entrevista</label>
+          <select id="filterStatus"><option value="">Todos</option></select>
+        </div>
+        <div class="filter-group">
+          <label>Data Início</label>
+          <input type="date" id="filterDateStart">
+        </div>
+        <div class="filter-group">
+          <label>Data Fim</label>
+          <input type="date" id="filterDateEnd">
+        </div>
+        <button id="btnClearFilters" class="btn-clear">✕ Limpar Filtros</button>
       </div>
-      <div class="filter-group">
-        <label>Faixa Etária</label>
-        <select id="filterAge"><option value="">Todas</option></select>
-      </div>
-      <div class="filter-group">
-        <label>Status Entrevista</label>
-        <select id="filterStatus"><option value="">Todos</option></select>
-      </div>
-      <div class="filter-group">
-        <label>Data Início</label>
-        <input type="date" id="filterDateStart">
-      </div>
-      <div class="filter-group">
-        <label>Data Fim</label>
-        <input type="date" id="filterDateEnd">
-      </div>
-      <button id="btnClearFilters" class="btn-clear">✕ Limpar Filtros</button>
     </div>
 
     <!-- Drawer: Entrevistados, Candidatos & Questões -->
@@ -634,7 +686,7 @@
           <div class="drawer-col">
             <div class="drawer-col-title">
               👤 Entrevistados <span class="ct-badge" id="drawerCount">0</span>
-              <span style="margin-left:auto; font-size:0.55rem; opacity:0.6;">(+) Pos / (-) Neg</span>
+              <span style="margin-left:auto; font-size:0.55rem; opacity:0.6;">(+) % Pos / (-) % Neg</span>
             </div>
             <ul class="drawer-list" id="drawerRespondentsList">
               <li class="drawer-empty">Carregue os dados para ver os entrevistados.</li>
@@ -742,6 +794,9 @@
     const statusBadge  = document.getElementById('statusBadge');
     const emptyState   = document.getElementById('emptyState');
     const filtersPanel = document.getElementById('filtersPanel');
+    const filterWrap   = document.getElementById('filterWrap');
+    const filterToggleBtn = document.getElementById('filterToggleBtn');
+    const filterActiveCount = document.getElementById('filterActiveCount');
     const kpiSection   = document.getElementById('kpiSection');
     const chartsSection= document.getElementById('chartsSection');
     const kpiGrid      = document.getElementById('kpiGrid');
@@ -890,8 +945,8 @@
       renderAll();
     }
 
-    function showEmpty() { emptyState.classList.remove('hidden'); filtersPanel.classList.add('hidden'); kpiSection.classList.add('hidden'); chartsSection.classList.add('hidden'); }
-    function hideEmpty() { emptyState.classList.add('hidden'); filtersPanel.classList.remove('hidden'); kpiSection.classList.remove('hidden'); chartsSection.classList.remove('hidden'); }
+    function showEmpty() { emptyState.classList.remove('hidden'); filterWrap.classList.add('hidden'); kpiSection.classList.add('hidden'); chartsSection.classList.add('hidden'); }
+    function hideEmpty() { emptyState.classList.add('hidden'); filterWrap.classList.remove('hidden'); kpiSection.classList.remove('hidden'); chartsSection.classList.remove('hidden'); }
 
     function applyFilters() {
       if (!rawData.length) return;
@@ -1026,24 +1081,66 @@
       const geradoEm = new Date().toLocaleString('pt-BR');
       const filtrosAtivos = [filterRegion.value?`Região: ${filterRegion.value}`:'', filterAge.value?`Idade: ${filterAge.value}`:''].filter(Boolean).join(' · ') || 'Nenhum';
       
+      // Tabelas de distribuição
       const regC={}; f.forEach(x=>{ const r=x.regiao||'NI'; regC[r]=(regC[r]||0)+1; });
       const regRows = Object.entries(regC).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`<tr><td>${r}</td><td>${n}</td><td>${Math.round(n/t*100)}%</td></tr>`).join('');
       const ageC={}; f.forEach(x=>{ const a=x.idade||'NI'; ageC[a]=(ageC[a]||0)+1; });
       const ageRows = Object.entries(ageC).sort((a,b)=>b[1]-a[1]).map(([a,n])=>`<tr><td>${a}</td><td>${n}</td><td>${Math.round(n/t*100)}%</td></tr>`).join('');
       const servRows = Object.entries(probC).sort((a,b)=>b[1]-a[1]).map(([s,n])=>`<tr><td>${s}</td><td>${n}</td><td>${Math.round(n/t*100)}%</td></tr>`).join('');
 
-      // NOVA TABELA DE MÉTRICAS PARA O PDF
+      // Métricas por questão
       const satCatsFull = [{key:'satEducacao',label:'Educação'},{key:'satSeguranca',label:'Segurança'},{key:'satTransporte',label:'Transporte'},{key:'satSaude',label:'Saúde'},{key:'satSaneamento',label:'Saneamento'},{key:'desemprego',label:'Desemprego'},{key:'telefonia',label:'Telefonia'}];
       const questionMetricsRows = satCatsFull.map(cat => {
         const vals = f.map(x=>x[cat.key]).filter(v=>!isNaN(v));
         const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : '—';
         const pos = vals.filter(v => v >= 4).length;
         const neg = vals.filter(v => v <= 2).length;
-        return `<tr><td>${cat.label}</td><td>${avg}</td><td>${pos} (${Math.round(pos/t*100)}%)</td><td>${neg} (${Math.round(neg/t*100)}%)</td></tr>`;
+        return `<tr><td>${cat.label}</td><td>${avg}</td><td>${Math.round(pos/t*100)}%</td><td>${Math.round(neg/t*100)}%</td></tr>`;
       }).join('');
 
+      // ── LISTAGEM COMPLETA: Entrevistados ──
+      const satKeys = ['satEducacao','satSeguranca','satTransporte','satSaude','satSaneamento','desemprego','telefonia'];
+      const allData = filteredData.length ? filteredData : rawData;
+      const respondentesRows = allData.map((obj, i) => {
+        const fields = extractFields(obj);
+        const nome = (obj._raw[COL.CONTATO] || `Entrevistado #${i+1}`).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        let pos=0, neg=0, cnt=0;
+        satKeys.forEach(k=>{ const v=fields[k]; if(!isNaN(v)){ cnt++; if(v>=4) pos++; if(v<=2) neg++; }});
+        const pctPos = cnt?Math.round(pos/cnt*100):0;
+        const pctNeg = cnt?Math.round(neg/cnt*100):0;
+        const regiao = fields.regiao || '—';
+        const idade  = fields.idade  || '—';
+        return `<tr><td>${i+1}</td><td>${nome}</td><td>${regiao}</td><td>${idade}</td><td style="color:#059669;font-weight:700;">+${pctPos}%</td><td style="color:#dc2626;font-weight:700;">-${pctNeg}%</td></tr>`;
+      }).join('');
+
+      // ── LISTAGEM COMPLETA: Candidatos ──
+      const cMap2 = new Map();
+      allData.forEach(obj => {
+        const raw = obj._raw||[];
+        [normalizeCandidateName(raw[COL.NOME_CANDIDATO_S]), normalizeCandidateName(raw[COL.NOME_CANDIDATO_X])].filter(Boolean).forEach(n => {
+          const k=n.toLowerCase(); const cur=cMap2.get(k); if(cur) cur.count++; else cMap2.set(k,{name:n,count:1});
+        });
+      });
+      const candidatoRows = Array.from(cMap2.values()).sort((a,b)=>b.count-a.count).map((c,i) => {
+        const pct = t?Math.round(c.count/t*100):0;
+        return `<tr><td>${i+1}</td><td>${c.name.replace(/</g,'&lt;')}</td><td>${c.count}</td><td>${pct}%</td></tr>`;
+      }).join('');
+
+      // ── LISTAGEM COMPLETA: Questões ──
+      const skipQ = new Set([0,1,17,19,20,21,22,23,24]);
+      const questoesRows = headers.map((h,i) => {
+        if(!h||skipQ.has(i)) return null;
+        const vals = allData.map(obj=>parseNumeric(obj._raw[i])).filter(v=>!isNaN(v));
+        const avg = vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2):'—';
+        const pos = vals.filter(v=>v>=4).length;
+        const neg = vals.filter(v=>v<=2).length;
+        const pctPos = t?Math.round(pos/t*100):0;
+        const pctNeg = t?Math.round(neg/t*100):0;
+        return `<tr><td style="font-size:8px;">${h.replace(/</g,'&lt;').substring(0,80)}${h.length>80?'…':''}</td><td>${avg}</td><td style="color:#059669;">${pctPos}%</td><td style="color:#dc2626;">${pctNeg}%</td></tr>`;
+      }).filter(Boolean).join('');
+
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet"><style>
-        @page { size: A4 portrait; margin: 15mm; } * { margin:0; padding:0; box-sizing:border-box; } body { font-family:'Sora',sans-serif; color:#1e293b; font-size:10px; line-height:1.5; }
+        @page { size: A4 portrait; margin: 12mm; } * { margin:0; padding:0; box-sizing:border-box; } body { font-family:'Sora',sans-serif; color:#1e293b; font-size:10px; line-height:1.5; }
         .cover { min-height:260mm; display:flex; flex-direction:column; justify-content:center; padding:40px; page-break-after:always; }
         .cover-logo { font-size:40px; margin-bottom:20px; } .cover-title { font-size:48px; font-weight:800; line-height:1; margin-bottom:20px; } .cover-title em { color:#d97706; font-style:normal; }
         .cover-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:40px; } .cover-stat { background:#f8fafc; border:1px solid #e2e8f0; padding:20px; border-radius:12px; }
@@ -1053,22 +1150,42 @@
         .kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:15px; }
         .pdf-kpi { border:1px solid #e2e8f0; border-radius:8px; padding:12px; border-top:3px solid #d97706; } .pdf-kpi .val { font-size:18px; font-weight:800; font-family:'JetBrains Mono'; }
         .chart-2col { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px; } .pdf-chart-box { border:1px solid #e2e8f0; padding:10px; border-radius:8px; text-align:center; }
-        .pdf-chart-box img { width:100%; max-height:150px; object-fit:contain; } .pdf-table { width:100%; border-collapse:collapse; margin-bottom:15px; }
-        .pdf-table th { background:#0b1120; color:#fff; padding:8px; text-align:left; font-size:9px; } .pdf-table td { padding:8px; border-bottom:1px solid #f1f5f9; }
-        .progress-row { margin-bottom:8px; } .progress-bar-bg { background:#f1f5f9; height:6px; border-radius:3px; } .progress-bar-fill { height:6px; border-radius:3px; background:#d97706; }
+        .pdf-chart-box img { width:100%; max-height:150px; object-fit:contain; } .pdf-table { width:100%; border-collapse:collapse; margin-bottom:15px; font-size:9px; }
+        .pdf-table th { background:#0b1120; color:#fff; padding:7px 8px; text-align:left; font-size:8px; } .pdf-table td { padding:6px 8px; border-bottom:1px solid #f1f5f9; }
+        .pdf-table tr:nth-child(even) td { background:#f8fafc; }
         .print-bar { position:fixed; bottom:20px; right:20px; z-index:1000; } .btn-p { padding:10px 20px; border-radius:20px; border:none; cursor:pointer; font-weight:700; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
       </style></head><body>
-      <div class="cover"><div class="cover-logo">📊</div><div class="cover-title">Percepção<br><em>Cidadã</em><br>2026</div><div style="color:#64748b; font-size:14px;">Relatório Oficial de Campo · Rio de Janeiro</div>
+      <div class="cover"><div class="cover-logo">📊</div><div class="cover-title">Percepção<br><em>Cidadã</em><br>2026</div>
+      <div style="color:#64748b; font-size:14px;">Relatório Oficial de Campo · Rio de Janeiro</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:8px;">Gerado em: ${geradoEm} · Filtros: ${filtrosAtivos}</div>
       <div class="cover-stats"><div class="cover-stat"><div class="val">${t}</div><div>Respondentes</div></div><div class="cover-stat"><div class="val">${mediaGeral}</div><div>Satisfação</div></div><div class="cover-stat"><div class="val">${pctAcred}%</div><div>Confiança</div></div></div></div>
+      
       <div class="page"><div class="page-header"><h2>📈 Indicadores e Métricas</h2><span>Pág. 2</span></div>
       <div class="kpi-row"><div class="pdf-kpi"><div class="lbl">Satisfação Geral</div><div class="val">${mediaGeral}</div></div><div class="pdf-kpi"><div class="lbl">Segurança</div><div class="val">${mediaSeg}</div></div><div class="pdf-kpi"><div class="lbl">Possuem Candidato</div><div class="val">${pctCand}%</div></div></div>
-      <div class="section-label">Métricas Detalhadas por Questão</div>
-      <table class="pdf-table"><thead><tr><th>Questão</th><th>Média</th><th>Positivas (4-5)</th><th>Negativas (1-2)</th></tr></thead><tbody>${questionMetricsRows}</tbody></table>
+      <div class="section-label">Métricas por Questão — Percentual de Respondentes</div>
+      <table class="pdf-table"><thead><tr><th>Questão</th><th>Média</th><th>Positivas ≥4 (%)</th><th>Negativas ≤2 (%)</th></tr></thead><tbody>${questionMetricsRows}</tbody></table>
       <div class="section-label">Análise Visual</div>
       <div class="chart-2col"><div class="pdf-chart-box"><h4>Satisfação</h4><img src="${imgs.chartSatisfacao}"></div><div class="pdf-chart-box"><h4>Regiões</h4><img src="${imgs.chartRegiao}"></div></div>
       <div class="chart-2col"><div class="pdf-chart-box"><h4>Serviços</h4><img src="${imgs.chartServicos}"></div><div class="pdf-chart-box"><h4>Timeline</h4><img src="${imgs.chartTimeline}"></div></div>
       <div class="section-label">Distribuição Regional</div><table class="pdf-table"><thead><tr><th>Região</th><th>Respostas</th><th>%</th></tr></thead><tbody>${regRows}</tbody></table>
-      </div><div class="print-bar"><button class="btn-p" style="background:#0b1120; color:#fff;" onclick="window.print()">🖨️ Imprimir PDF</button></div></body></html>`;
+      <div class="section-label">Distribuição por Faixa Etária</div><table class="pdf-table"><thead><tr><th>Faixa Etária</th><th>Respostas</th><th>%</th></tr></thead><tbody>${ageRows}</tbody></table>
+      <div class="section-label">Serviços mais Problemáticos</div><table class="pdf-table"><thead><tr><th>Serviço</th><th>Menções</th><th>%</th></tr></thead><tbody>${servRows}</tbody></table>
+      </div>
+
+      <div class="page"><div class="page-header"><h2>👤 Listagem de Entrevistados (${t})</h2><span>Pág. 3</span></div>
+      <div class="section-label">Todos os entrevistados com % de respostas positivas/negativas nas 7 áreas avaliadas</div>
+      <table class="pdf-table"><thead><tr><th>#</th><th>Nome / Contato</th><th>Região</th><th>Idade</th><th>% Pos</th><th>% Neg</th></tr></thead><tbody>${respondentesRows}</tbody></table>
+      </div>
+
+      <div class="page"><div class="page-header"><h2>🗳️ Candidatos Citados</h2><span>Pág. 4</span></div>
+      <div class="section-label">Candidatos mencionados pelos entrevistados — % calculado sobre total de respondentes (${t})</div>
+      <table class="pdf-table"><thead><tr><th>#</th><th>Candidato</th><th>Menções</th><th>% dos Respondentes</th></tr></thead><tbody>${candidatoRows || '<tr><td colspan="4" style="color:#94a3b8;font-style:italic;">Nenhum candidato registrado</td></tr>'}</tbody></table>
+      <div class="section-label" style="margin-top:30px;">❓ Questões da Entrevista — Métricas Completas</div>
+      <div style="font-size:9px;color:#64748b;margin-bottom:8px;">% calculado sobre total de respondentes que preencheram cada campo</div>
+      <table class="pdf-table"><thead><tr><th>Questão</th><th>Média</th><th>% Positivas</th><th>% Negativas</th></tr></thead><tbody>${questoesRows}</tbody></table>
+      </div>
+
+      <div class="print-bar"><button class="btn-p" style="background:#0b1120; color:#fff;" onclick="window.print()">🖨️ Imprimir PDF</button></div></body></html>`;
       const win = window.open('', '_blank', 'width=1000,height=800');
       win.document.write(html); win.document.close();
     }
@@ -1077,18 +1194,21 @@
       const data = filteredData.length ? filteredData : rawData;
       const f = data.map(extractFields);
       const satKeys = ['satEducacao','satSeguranca','satTransporte','satSaude','satSaneamento','desemprego','telefonia'];
+      const totalRespondentes = data.length;
       
-      // 1. Entrevistados (Revisado)
+      // 1. Entrevistados — % de positivas e negativas sobre as 7 questões
       drawerRespondentsList.innerHTML = data.map((obj, i) => {
         const fields = extractFields(obj);
         const nome = obj._raw[COL.CONTATO] || `Entrevistado #${i+1}`;
-        let pos = 0, neg = 0;
-        satKeys.forEach(k => { const v = fields[k]; if(!isNaN(v)){ if(v>=4) pos++; if(v<=2) neg++; } });
-        return `<li class="drawer-item"><span class="drawer-item-num">${i+1}</span>${escHtml(nome)}<div class="drawer-item-meta"><span class="meta-pos">+${pos}</span><span class="meta-neg">-${neg}</span></div></li>`;
+        let pos = 0, neg = 0, cnt = 0;
+        satKeys.forEach(k => { const v = fields[k]; if(!isNaN(v)){ cnt++; if(v>=4) pos++; if(v<=2) neg++; } });
+        const pctPos = cnt ? Math.round(pos/cnt*100) : 0;
+        const pctNeg = cnt ? Math.round(neg/cnt*100) : 0;
+        return `<li class="drawer-item"><span class="drawer-item-num">${i+1}</span>${escHtml(nome)}<div class="drawer-item-meta"><span class="meta-pos">+${pctPos}%</span><span class="meta-neg">-${pctNeg}%</span></div></li>`;
       }).join('') || '<li class="drawer-empty">NI</li>';
       drawerCount.textContent = data.length;
 
-      // 2. Candidatos (Lista + Destaque)
+      // 2. Candidatos — % de menções sobre o total de respondentes
       const cMap = new Map();
       data.forEach(obj => {
         const raw = obj._raw || [];
@@ -1098,12 +1218,16 @@
       });
       const candidates = Array.from(cMap.values()).sort((a,b)=>b.count-a.count);
       const maxC = candidates.length ? candidates[0].count : 0;
-      drawerCandidatesList.innerHTML = candidates.map(c => `<li class="drawer-item ${c.count===maxC && maxC>0?'top-candidate':''}">${escHtml(c.name)}<span style="margin-left:auto; opacity:0.6;">${c.count} menções</span></li>`).join('') || '<li class="drawer-empty">NI</li>';
+      drawerCandidatesList.innerHTML = candidates.map(c => {
+        const pct = totalRespondentes ? Math.round(c.count/totalRespondentes*100) : 0;
+        return `<li class="drawer-item ${c.count===maxC && maxC>0?'top-candidate':''}">${escHtml(c.name)}<span style="margin-left:auto; opacity:0.6;">${pct}% <span style="font-size:.6rem;">(${c.count})</span></span></li>`;
+      }).join('') || '<li class="drawer-empty">NI</li>';
       drawerCandidateCount.textContent = candidates.length;
 
-      // 3. Questões (Métricas Detalhadas)
+      // 3. Questões — % de positivas e negativas sobre total de respondentes
       const skip = new Set([0,1,17,20,21,22,23,24,19]);
       let qCount = 0;
+      const t = totalRespondentes;
       drawerQuestionsList.innerHTML = headers.map((h, i) => {
         if (!h || skip.has(i)) return null;
         qCount++;
@@ -1111,17 +1235,33 @@
         const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
         const pos = vals.filter(v=>v>=4).length;
         const neg = vals.filter(v=>v<=2).length;
-        return `<li class="drawer-item"><span class="drawer-item-num">Q${i}</span><div style="flex:1;">${escHtml(h)}</div><div class="drawer-item-meta"><span class="meta-avg">Média: ${avg}</span><span class="meta-pos">Pos: ${pos}</span><span class="meta-neg">Neg: ${neg}</span></div></li>`;
+        const pctPos = t ? Math.round(pos/t*100) : 0;
+        const pctNeg = t ? Math.round(neg/t*100) : 0;
+        return `<li class="drawer-item"><span class="drawer-item-num">Q${i}</span><div style="flex:1;">${escHtml(h)}</div><div class="drawer-item-meta"><span class="meta-avg">Média: ${avg}</span><span class="meta-pos">Pos: ${pctPos}%</span><span class="meta-neg">Neg: ${pctNeg}%</span></div></li>`;
       }).filter(Boolean).join('') || '<li class="drawer-empty">NI</li>';
       drawerQCount.textContent = qCount;
     }
 
     function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function updateFilterBadge() {
+      const active = [filterRegion.value, filterAge.value, filterStatus.value, filterDateStart.value, filterDateEnd.value].filter(Boolean).length;
+      filterActiveCount.textContent = `${active} ativo${active!==1?'s':''}`;
+      filterActiveCount.classList.toggle('visible', active > 0);
+    }
+
     btnLoad.addEventListener('click', loadData);
     btnPDF.addEventListener('click', exportPDF);
+
+    filterToggleBtn.addEventListener('click', () => {
+      const isOpen = filtersPanel.classList.toggle('open');
+      filterToggleBtn.classList.toggle('open', isOpen);
+      filterToggleBtn.setAttribute('aria-expanded', isOpen);
+    });
+
     drawerToggle.addEventListener('click', () => { const isOpen = drawerBody.classList.toggle('open'); drawerToggle.classList.toggle('open', isOpen); });
-    [filterRegion, filterAge, filterStatus, filterDateStart, filterDateEnd].forEach(el => el.addEventListener('change', applyFilters));
-    btnClear.addEventListener('click', () => { filterRegion.value = filterAge.value = filterStatus.value = filterDateStart.value = filterDateEnd.value = ''; filteredData = [...rawData]; renderAll(); });
+    [filterRegion, filterAge, filterStatus, filterDateStart, filterDateEnd].forEach(el => el.addEventListener('change', () => { applyFilters(); updateFilterBadge(); }));
+    btnClear.addEventListener('click', () => { filterRegion.value = filterAge.value = filterStatus.value = filterDateStart.value = filterDateEnd.value = ''; filteredData = [...rawData]; renderAll(); updateFilterBadge(); });
     showEmpty();
   })();
   </script>
