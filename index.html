@@ -779,15 +779,82 @@
 
     let rawData = [], headers = [], filteredData = [], chartInstances = {};
 
-    const COL = {
-      TIMESTAMP:0, PONTUACAO:1, CONTATO:2, IDADE:3,
-      SAT_EDUCACAO:4, SAT_SEGURANCA:5, SAT_TRANSPORTE:6, SAT_SAUDE:7,
-      SAT_SANEAMENTO:8, DESEMPREGO:9, INICIATIVA_MULHER:10,
-      SERVICOS_PROBLEMA:11, TELEFONIA:12, COMPRAS_ONLINE:13, REGIAO:14,
-      ACREDITA_GOVERNANTES:15, TEM_CANDIDATO:16, EMAIL:17,
-      NOME_CANDIDATO_S:18, BAIRRO:19, MOBILIZADOR:20,
-      REGIAO_PESQUISA:21, STATUS_ENTREVISTA:22, NOME_CANDIDATO_X:23, COLUNA24:24
-    };
+    // COL será preenchido dinamicamente após leitura dos cabeçalhos
+    let COL = {};
+
+    /**
+     * Detecta os índices das colunas pelo texto do cabeçalho (case-insensitive, sem acentos).
+     * Isso torna o mapeamento resiliente a variações na planilha de origem.
+     */
+    function detectColumns(hdrs) {
+      const norm = s => String(s||'').toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+      const h = hdrs.map(norm);
+
+      const findFirst = (...terms) => {
+        for (const term of terms) {
+          const t = norm(term);
+          const idx = h.findIndex(col => col.includes(t));
+          if (idx >= 0) return idx;
+        }
+        return -1;
+      };
+
+      // Colunas com cabeçalho repetido ("Se tem candidato... qual o nome dele?")
+      const nomeDeleCols = h.reduce((acc, col, i) => {
+        if (col.includes('nome dele') || col.includes('qual o nome')) acc.push(i);
+        return acc;
+      }, []);
+
+      const detected = {
+        TIMESTAMP:            findFirst('carimbo', 'timestamp', 'data/hora', 'data hora'),
+        PONTUACAO:            findFirst('pontuacao', 'pontuação', 'score'),
+        CONTATO:              findFirst('entrevistdo', 'entrevistado', 'nome do entre'),
+        IDADE:                findFirst('idade'),
+        SAT_EDUCACAO:         findFirst('educacao publica', 'educação publica', 'satisfacao com a educacao', 'satisfação com a educação'),
+        SAT_SEGURANCA:        findFirst('seguranca publica', 'segurança publica'),
+        SAT_TRANSPORTE:       findFirst('transporte publico', 'transporte público'),
+        SAT_SAUDE:            findFirst('saude publica', 'saúde publica', 'sus'),
+        SAT_SANEAMENTO:       findFirst('saneamento'),
+        DESEMPREGO:           findFirst('desemprego'),
+        INICIATIVA_MULHER:    findFirst('mulher'),
+        SERVICOS_PROBLEMA:    findFirst('servicos essenciais', 'serviços essenciais', 'agua,'),
+        TELEFONIA:            findFirst('telefonia'),
+        COMPRAS_ONLINE:       findFirst('compras online', 'compras on'),
+        REGIAO:               findFirst('regiao de moradia', 'região de moradia'),
+        ACREDITA_GOVERNANTES: findFirst('governantes'),
+        TEM_CANDIDATO:        findFirst('voce tem candidato', 'você tem candidato'),
+        EMAIL:                findFirst('endereco de email', 'endereço de email', 'e-mail'),
+        NOME_CANDIDATO_S:     nomeDeleCols[0] ?? -1,
+        BAIRRO:               findFirst('bairro de moradia'),
+        MOBILIZADOR:          findFirst('agente mobilizador', 'mobilizador'),
+        REGIAO_PESQUISA:      findFirst('realizacao da pesquisa', 'realização da pesquisa', 'regiao de realizacao'),
+        STATUS_ENTREVISTA:    findFirst('status'),
+        NOME_CANDIDATO_X:     nomeDeleCols[1] ?? -1,
+      };
+
+      // Coluna extra de bairro (última coluna repetida): qualquer col com 'informe o bairro'
+      const extraBairro = findFirst('informe o bairro');
+      if (extraBairro >= 0) detected.COLUNA_EXTRA = extraBairro;
+
+      // Log de diagnóstico no console
+      console.info('[COL detectados]', detected);
+      return detected;
+    }
+
+    /**
+     * Retorna o Set de índices que NÃO devem aparecer no painel de Questões —
+     * são campos administrativos/pessoais, não perguntas da pesquisa.
+     */
+    function buildAdminSkip() {
+      return new Set([
+        COL.TIMESTAMP, COL.PONTUACAO, COL.CONTATO,
+        COL.EMAIL, COL.BAIRRO, COL.MOBILIZADOR,
+        COL.REGIAO_PESQUISA, COL.STATUS_ENTREVISTA,
+        COL.NOME_CANDIDATO_S, COL.NOME_CANDIDATO_X,
+        COL.COLUNA_EXTRA
+      ].filter(v => v != null && v >= 0));
+    }
 
     const btnLoad      = document.getElementById('btnLoadData');
     const btnPDF       = document.getElementById('btnExportPDF');
@@ -866,6 +933,8 @@
       const result = Papa.parse(csvText, { header: false, skipEmptyLines: true });
       if (!result.data || result.data.length < 2) return { headers: [], data: [] };
       const headersRow = result.data[0].map(h => String(h||'').trim());
+      // Detecta colunas dinamicamente pelos nomes reais do cabeçalho
+      COL = detectColumns(headersRow);
       const rows = result.data.slice(1).map((row, idx) => {
         const obj = {};
         headersRow.forEach((key, i) => { obj[key] = row[i] !== undefined ? String(row[i]).trim() : ''; });
@@ -1127,9 +1196,11 @@
       }).join('');
 
       // ── LISTAGEM COMPLETA: Questões ──
-      const skipQ = new Set([0,1,17,19,20,21,22,23,24]);
+      const skipQ = buildAdminSkip();
+      let pdfQCount = 0;
       const questoesRows = headers.map((h,i) => {
         if(!h||skipQ.has(i)) return null;
+        pdfQCount++;
         const vals = allData.map(obj=>parseNumeric(obj._raw[i])).filter(v=>!isNaN(v));
         const avg = vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2):'—';
         const pos = vals.filter(v=>v>=4).length;
@@ -1225,11 +1296,11 @@
       drawerCandidateCount.textContent = candidates.length;
 
       // 3. Questões — % de positivas e negativas sobre total de respondentes
-      const skip = new Set([0,1,17,20,21,22,23,24,19]);
+      const adminSkip = buildAdminSkip();
       let qCount = 0;
       const t = totalRespondentes;
       drawerQuestionsList.innerHTML = headers.map((h, i) => {
-        if (!h || skip.has(i)) return null;
+        if (!h || adminSkip.has(i)) return null;
         qCount++;
         const vals = data.map(obj => parseNumeric(obj._raw[i])).filter(v=>!isNaN(v));
         const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
@@ -1237,7 +1308,7 @@
         const neg = vals.filter(v=>v<=2).length;
         const pctPos = t ? Math.round(pos/t*100) : 0;
         const pctNeg = t ? Math.round(neg/t*100) : 0;
-        return `<li class="drawer-item"><span class="drawer-item-num">Q${i}</span><div style="flex:1;">${escHtml(h)}</div><div class="drawer-item-meta"><span class="meta-avg">Média: ${avg}</span><span class="meta-pos">Pos: ${pctPos}%</span><span class="meta-neg">Neg: ${pctNeg}%</span></div></li>`;
+        return `<li class="drawer-item"><span class="drawer-item-num">Q${qCount}</span><div style="flex:1;">${escHtml(h)}</div><div class="drawer-item-meta"><span class="meta-avg">Média: ${avg}</span><span class="meta-pos">Pos: ${pctPos}%</span><span class="meta-neg">Neg: ${pctNeg}%</span></div></li>`;
       }).filter(Boolean).join('') || '<li class="drawer-empty">NI</li>';
       drawerQCount.textContent = qCount;
     }
